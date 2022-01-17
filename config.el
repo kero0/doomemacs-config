@@ -12,9 +12,9 @@
 (use-package emojify
   :hook (after-init . global-emojify-mode))
 
-(setq doom-font (font-spec :family "JetBrains Mono" :size 22)
-      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 22)
-      doom-big-font (font-spec :family "JetBrains Mono" :size 46))
+(setq doom-font (font-spec :family "JetBrains Mono" :size 14)
+      doom-variable-pitch-font (font-spec :family "JetBrains Mono" :size 14)
+      doom-big-font (font-spec :family "JetBrains Mono" :size 24))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
