@@ -653,10 +653,10 @@ Fancy emojis, fonts, and beautiful ligatures. I remember stealing the ligatures 
   (use-package! emojify
     :hook (after-init . global-emojify-mode))
 
-  (setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16)
-        doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 16)
-        doom-unicode-font (font-spec :family "JuliaMono")
-        doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 24))
+  (setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16.0)
+        doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 16.0)
+        doom-unicode-font (font-spec :family "JuliaMono" :size 16.0)
+        doom-big-font (font-spec :family "JetBrainsMono Nerd Font" :size 24.0))
   (after! doom-themes
     (setq doom-themes-enable-bold t
           doom-themes-enable-italic t))
