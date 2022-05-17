@@ -868,8 +868,8 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
 #+end_src
 
 #+begin_src  emacs-lisp
-(use-package! xenops-mode
-  ; I had this enabled in every org-mode file automatically, but I don't like that there is no way to turn off or move it's keybindings. I'll just manually turn it on as needed.
+(use-package! xenops
+  ;        I had this enabled in every org-mode file automatically, but I don't like that there is no way to turn off or move it's keybindings. I'll just manually turn it on as needed.
   ;:hook (org-mode . xenops-mode)
   ;:hook (latex-mode . xenops-mode)
   :config (setq xenops-math-image-current-scale-factor 2.0))
