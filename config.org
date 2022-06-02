@@ -2,7 +2,6 @@
 #+property: header-args :emacs-lisp
 #+property: header-args :mkdirp yes :comments no :results output silent
 #+startup: fold
-
 :END:
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css" >
 
@@ -303,10 +302,12 @@ There isn't really much to say here, most of these are self explanatory.
 
 #+begin_src emacs-lisp :tangle init.el
 :editor
-(evil +everywhere)  ; come to the dark side, we have cookies
+(evil
+ +everywhere)  ; come to the dark side, we have cookies
 file-templates      ; auto-snippets for empty files
 fold                ; (nigh) universal code folding
-(format +onsave)    ; automated prettiness
+(format
+ +onsave)    ; automated prettiness
 ;;god               ; run Emacs commands without modifier keys
 ;;lispy             ; vim for emacs-lisp, for people who don't like vim
 multiple-cursors    ; editing in many places at once
@@ -445,18 +446,18 @@ overall. I very often come here and enable or disable a language.
 ;;agda              ; types of types of types of types...
 ;;beancount         ; mind the GAAP
 (cc
- +lsp)           ; C > C++ == 1 might add +lsp
+ +lsp)              ; C > C++ == 1 might add +lsp
 ;;clojure           ; java with a  emacs-lisp
 ;;common-lisp       ; if you've seen one emacs-lisp, you've seen them all
 ;;coq               ; proofs-as-programs
 ;;crystal           ; ruby at the speed of c
 ;;csharp            ; unity, .NET, and mono shenanigans
 ;;data              ; config/data formats
-(dart
- +flutter)   ; paint ui and not much else
+;;(dart
+;; +flutter)        ; paint ui and not much else
 ;;elixir            ; erlang done right
 ;;elm               ; care for a cup of TEA?
-emacs-lisp        ; drown in parentheses
+emacs-lisp          ; drown in parentheses
 ;;erlang            ; an elegant language for a more civilized age
 ;;ess               ; emacs speaks statistics
 ;;factor
@@ -465,27 +466,29 @@ emacs-lisp        ; drown in parentheses
 ;;fstar             ; (dependent) types and (monadic) effects and Z3
 ;;gdscript          ; the language you waited for
 ;;(go +lsp)         ; the hipster dialect
-;;(haskell +dante)  ; a language that's lazier than I am
+;;(haskell
+;;  +lsp)           ; a language that's lazier than I am
 ;;hy                ; readability of scheme w/ speed of python
 ;;idris             ; a language you can depend on
-;;json              ; At least it ain't XML
+json                ; At least it ain't XML
 ;;(java +meghanada) ; the poster child for carpal tunnel syndrome
 ;;javascript        ; all(hope(abandon(ye(who(enter(here))))))
 ;;julia             ; a better, faster MATLAB
 ;;kotlin            ; a better, slicker Java(Script)
 (latex
- +cdlatex)           ; writing papers in Emacs has never been so fun
+ +cdlatex)          ; writing papers in Emacs has never been so fun
 ;;lean              ; for folks with too much to prove
 ;;ledger            ; be audit you can be
 ;;lua               ; one-based indices? one-based indices
 (markdown
- +grip)          ; writing docs for people to ignore
+ +grip)             ; writing docs for people to ignore
 ;;nim               ; python + emacs-lisp at the speed of c
-nix               ; I hereby declare "nix geht mehr!"
+;;nix               ; I hereby declare "nix geht mehr!"
 ;;ocaml             ; an objective camel
 (org
  +dragndrop
  +gnuplot
+ +hugo
  +journal
  +noter
  +org-bullets
@@ -493,7 +496,7 @@ nix               ; I hereby declare "nix geht mehr!"
  +pretty
  +roam2)            ; organize your plain life in plain text
 ;;php               ; perl's insecure younger brother
-plantuml          ; diagrams for confusing people more
+plantuml            ; diagrams for confusing people more
 ;;purescript        ; javascript, but functional
 (python             ; beautiful is better than ugly
  +lsp)
@@ -503,7 +506,8 @@ plantuml          ; diagrams for confusing people more
 ;;rest              ; Emacs as a REST client
 ;;rst               ; ReST in peace
 ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-;;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+;;(rust
+;; +lsp)              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
 ;;scala             ; java, but good
 ;;(scheme +guile)   ; a fully conniving family of emacs-lisps
 (sh                 ; she sells {ba,z,fi}sh shells on the C xor
@@ -523,7 +527,9 @@ yaml                ; JSON, but readable
 
 #+begin_src emacs-lisp :tangle init.el
 :email
-;;(mu4e +gmail)
+(mu4e
+ +gmail
+ +org)
 ;;notmuch
 ;;(wanderlust +gmail)
 #+end_src
@@ -628,23 +634,18 @@ so I like to have lines wrapped by default.
 (+global-word-wrap-mode +1)
 #+end_src
 
-I'm using the default =doom-one= theme here, and offer myself a quick
-way to switch to another theme.
+Setting my theme.
 
 #+begin_src  emacs-lisp
 (solaire-global-mode +1)
 (setq doom-theme 'doom-one)
-(map! :leader
-      :desc "Load new theme" "h t" #'counsel-load-theme)
 #+end_src
 
 I want to see the battery on my Mac because I hide the bar.
 
 #+begin_src  emacs-lisp
-(unless
-    (equal
-     "Battery status not available"
-     (battery))
+(unless (equal "Battery status not available"
+               (battery))
   (display-battery-mode 1))
 #+end_src
 
@@ -697,6 +698,181 @@ Trying out DAP for my debugger
       :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
 #+end_src
 
+** Email
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+This section is currently disabled because [[*Detroit Mercy email]] doesn't work with =mbsync=. This is due to an auth issue that I may try to fix or may just leave disabled.
+*** =msmtp=
+#+begin_src emacs-lisp
+ (setq
+  sendmail-program "msmtp"
+  send-mail-function #'smtpmail-send-it
+  message-sendmail-f-is-evil t
+  message-sendmail-extra-arguments '("--read-envelope-from")
+  message-send-mail-function #'message-send-mail-with-sendmail
+  mu4e-view-show-images t)
+
+(setq +mu4e-gmail-accounts
+      '(("kbakheat@gmail.com" . "/kbakheat-gmail")
+        ("kirolsb5@gmail.com" . "/kirolsb5-gmail")))
+(when (fboundp 'imagemagick-register-types)
+  (imagemagick-register-types))
+#+end_src
+
+#+begin_src conf :tangle ~/.config/msmtp/config
+defaults
+auth            on
+tls             on
+logfile         ~/.msmtp.log
+#+end_src
+
+*** =mbsync=,  =goimapnotify=, =msmtp=, and per-account setup
+**** Main gmail
+#+begin_src emacs-lisp
+(set-email-account! "kbakheat-gmail"
+  '((mu4e-sent-folder       . "/kbakheat-gmail/Sent Mail")
+    (mu4e-drafts-folder     . "/kbakheat-gmail/Drafts")
+    (mu4e-trash-folder      . "/kbakheat-gmail/Trash")
+    (mu4e-refile-folder     . "/kbakheat-gmail/All Mail")
+    (smtpmail-smtp-user     . "kbakheat@gmail.com")
+    (mu4e-compose-signature . "---\nKirols Bakheat"))
+  t)
+#+end_src
+
+#+begin_src conf :tangle ~/.mbsyncrc
+IMAPAccount     kbakheat-gmail
+Host            imap.gmail.com
+User            kbakheat@gmail.com
+PassCmd         "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
+SSLType         IMAPS
+AuthMechs       Login
+
+IMAPStore       kbakheat-gmail-remote
+Account         kbakheat-gmail
+
+MaildirStore    kbakheat-gmail-local
+SubFolders      Verbatim
+Path            ~/.local/mail/kbakheat-gmail/
+Inbox           ~/.local/mail/kbakheat-gmail/
+
+Channel         kbakheat-gmail
+Far             :kbakheat-gmail-remote:
+Near            :kbakheat-gmail-local:
+Patterns        *
+Create          Both
+Expunge         Both
+SyncState       *
+MaxMessages     20000
+#+end_src
+
+#+begin_src json :tangle ~/.config/imapnotify/kbakheat-google
+{
+    "host": "imap.gmail.com",
+    "port": 993,
+    "tls": true,
+    "tlsOptions": {
+        "rejectUnauthorized": false
+    },
+    "username": "kbakheat@gmail.com",
+    "passwordCmd": "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg",
+    "onNewMail": "mbsync kirolsb5-gmail",
+    "onNewMailPost": "",
+    "boxes": [ "INBOX" ]
+}
+#+end_src
+
+#+begin_src conf :tangle ~/.config/msmtp/config
+account         kbakheat-gmail
+host            smtp.gmail.com
+port            587
+tls_starttls    on
+user            kbakheat@gmail.com
+passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
+from            kbakheat@gmail.com
+account         default : kbakheat-gmail
+#+end_src
+
+**** Secondary gmail
+#+begin_src emacs-lisp
+(set-email-account! "kirolsb5-gmail"
+  '((mu4e-sent-folder       . "/kirolsb5-gmail/Sent Mail")
+    (mu4e-drafts-folder     . "/kirolsb5-gmail/Drafts")
+    (mu4e-trash-folder      . "/kirolsb5-gmail/Trash")
+    (mu4e-refile-folder     . "/kirolsb5-gmail/All Mail")
+    (smtpmail-smtp-user     . "kbakheat@gmail.com")
+    (mu4e-compose-signature . "---\nKirols Bakheat"))
+  t)
+#+end_src
+
+#+begin_src conf :tangle ~/.mbsyncrc
+IMAPAccount kirolsb5-gmail
+Host imap.gmail.com
+User kirolsb5@gmail.com
+PassCmd "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
+SSLType IMAPS
+AuthMechs Login
+
+IMAPStore kirolsb5-gmail-remote
+Account kirolsb5-gmail
+
+MaildirStore kirolsb5-gmail-local
+SubFolders Verbatim
+Path ~/.local/mail/kirolsb5-gmail/
+Inbox ~/.local/mail/kirolsb5-gmail/
+
+Channel kirolsb5-gmail
+Far :kirolsb5-gmail-remote:
+Near :kirolsb5-gmail-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+#+end_src
+
+#+begin_src conf :tangle ~/.config/msmtp/config
+account         kirolsb5-gmail
+host            smtp.gmail.com
+port            587
+tls_starttls    on
+user            kirolsb5@gmail.com
+passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
+from            kirolsb5@gmail.com
+#+end_src
+**** Detroit Mercy email
+#+begin_src conf :tangle ~/.mbsyncrc
+IMAPAccount bakheakm-udmercy
+Host outlook.office365.com
+User bakheakm@udmercy.edu
+PassCmd "~/scripts/mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
+#PassCmd "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/office.com/bakheakm.gpg"
+SSLType IMAPS
+AuthMechs XOAUTH
+SSLVersions TLSv1.2
+Port 993
+
+IMAPStore bakheakm-udmercy-remote
+Account bakheakm-udmercy
+
+MaildirStore bakheakm-udmercy-local
+# Note the trailing slash on the Path statement!
+Path ~/.local/mail/bakheakm-udmercy/
+Inbox ~/.local/mail/bakheakm-udmercy/
+SubFolders Legacy
+
+Channel bakheakm-udmercy
+Far :bakheakm-udmercy-remote:
+Near :bakheakm-udmercy-local:
+#Include everything
+Patterns *
+# Sync changes (creations/deletions) with the server
+Create Both
+Expunge Both
+Sync All
+
+#+end_src
+
 ** Fonts
 Setting fonts and some emojis.
 
@@ -704,8 +880,8 @@ Setting fonts and some emojis.
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
   :config (setq mixed-pitch-face 'variable-pitch))
-(use-package! emojify
-  :hook (after-init . global-emojify-mode))
+;; (use-package! emojify
+  ;; :hook (after-init . global-emojify-mode))
 
 (setq doom-font                (font-spec :family "JetBrainsMono Nerd Font Mono" :size 17.0)
       doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 17.0)
@@ -781,6 +957,32 @@ I don't use this that often but it is convenient when I occasionally need it.
       (setq evil-repeat-info '([?g ?~])))
     (define-key evil-normal-state-map (kbd "g~") 'evil-operator-string-inflection)))
 #+end_src
+** Github Copilot
+#+begin_src emacs-lisp :tangle packages.el
+(package! copilot
+  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+#+end_src
+#+begin_src emacs-lisp
+(defun my-tab ()
+  (interactive)
+  (or (copilot-accept-completion)
+      (company-indent-or-complete-common nil)))
+
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :hook (text-mode . copilot-mode)
+  :bind (("C-TAB" . 'copilot-accept-completion-by-word)
+         ("C-<tab>" . 'copilot-accept-completion-by-word)
+         :map company-active-map
+         ("<tab>" . 'my-tab)
+         ("TAB" . 'my-tab)
+         :map company-mode-map
+         ("<tab>" . 'my-tab)
+         ("TAB" . 'my-tab))
+  :config
+  (if (eq system-type 'darwin)
+      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")))
+#+end_src
 ** Org mode
 I use Org mode for general writing and deft for quick notes. I'm pretty
 knew to org mode, having recently come from pandoc markdown for writing.
@@ -810,9 +1012,9 @@ knew to org mode, having recently come from pandoc markdown for writing.
   '(outline-1 :weight extra-bold :height 1.25)
   '(outline-2 :weight bold :height 1.15)
   '(outline-3 :weight bold :height 1.12)
-  '(outline-4 :weight semi-bold :height 1.09)
-  '(outline-5 :weight semi-bold :height 1.06)
-  '(outline-6 :weight semi-bold :height 1.03)
+  '(outline-4 :weight semi-bold)
+  '(outline-5 :weight semi-bold)
+  '(outline-6 :weight semi-bold)
   '(outline-8 :weight semi-bold)
   '(outline-9 :weight semi-bold))
 (setq org-fontify-quote-and-verse-blocks t)
@@ -824,7 +1026,7 @@ knew to org mode, having recently come from pandoc markdown for writing.
                 jit-lock-stealth-time 1)))
 (add-hook 'org-mode-hook #'locally-defer-font-lock)
 (after! org-superstar
-  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+  (setq org-superstar-headline-bullets-list '("◉" "○" "✸" "✿" "✤" "✜" "◆")
         org-superstar-prettify-item-bullets t ))
 #+end_src
 
@@ -890,18 +1092,8 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
            org-appear-autosubmarkers t ))
 #+end_src
 
-*** Org-auto-tangle
-#+begin_src  emacs-lisp :tangle packages.el
-(package! org-auto-tangle)
-#+end_src
-
-#+begin_src  emacs-lisp
-(use-package! org-auto-tangle
-  :hook (org-mode . org-auto-tangle-mode)
-  :config (setq org-auto-tangle-default t))
-#+end_src
-
-*** Org latex syntax highlighting
+*** /src/ blocks
+**** Org latex syntax highlighting
 I don't want to constantly have exports creating =minted= folders with
 each export. This allows me to default to =lstlisings=, and if I don't
 like it I can include something like
@@ -928,6 +1120,24 @@ to the bottom of a file to get an export with =minted=.
   (setq org-src-fontify-natively t))
 #+end_src
 
+**** Default =header-args=
+#+begin_src emacs-lisp
+(setq org-babel-default-header-args
+  '((:session . "default") (:results . "replace") (:exports . "code")
+    (:cache . "yes") (:noweb . "yes") (:hlines . "no") (:tangle . "no")))
+#+end_src
+
+**** Org-auto-tangle
+#+begin_src  emacs-lisp :tangle packages.el
+(package! org-auto-tangle)
+#+end_src
+
+#+begin_src  emacs-lisp
+(use-package! org-auto-tangle
+  :hook (org-mode . org-auto-tangle-mode)
+  :config (setq org-auto-tangle-default t))
+#+end_src
+
 *** Literate calc mode
 #+begin_src  emacs-lisp :tangle packages.el
 (package! literate-calc-mode)
@@ -936,13 +1146,13 @@ to the bottom of a file to get an export with =minted=.
 #+begin_src  emacs-lisp
 (use-package! literate-calc-mode
   :after org
-  :hook (org-mode . literate-calc-minor-mode)
   :config
   (map!
    :map org-mode-map
    :localleader
    (:prefix ("C-c" . "literate calc")
     "c" #'literate-calc-eval-line
+    "e" #'literate-calc-minor-mode
     "i" #'literate-calc-insert-results)))
 #+end_src
 
@@ -959,6 +1169,22 @@ to the bottom of a file to get an export with =minted=.
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
                  ("\\subparagraph{%s}" .    "\\subparagraph*{%s}"))))
+#+end_src
+
+*** Lilypond
+Lilypond is useful for writing some sheet music which I occasionally do in emacs, mostly in org documents and mostly on my mac.
+
+#+begin_src emacs-lisp :tangle packages.el
+(if (eq system-type 'darwin)
+    (package! lilypond
+      :recipe (:local-repo "/opt/homebrew/share/emacs/site-lisp/lilypond/")))
+#+end_src
+#+begin_src emacs-lisp
+(if (eq system-type 'darwin)
+    (use-package! lilypond-mode
+      :commands LilyPond-mode
+      :init (defalias 'lilypond-mode 'LilyPond-mode)
+      :config (setq org-babel-lilypond-commands '("/opt/homebrew/bin/lilypond" "open" "open"))))
 #+end_src
 
 ** Functions
