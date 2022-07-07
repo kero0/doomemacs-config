@@ -731,8 +731,60 @@ mu init \
   && \
 mu index
 #+end_src
-**** Config
-***** =msmtp= defaults
+**** =emacs=
+***** =msmtp=
+#+begin_src emacs-lisp
+(use-package! mu4e
+  :init (if (eq system-type 'darwin)
+            (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
+  :config (setq
+           sendmail-program "msmtp"
+           send-mail-function #'smtpmail-send-it
+           message-sendmail-f-is-evil t
+           message-sendmail-extra-arguments '("--read-envelope-from")
+           message-send-mail-function #'message-send-mail-with-sendmail
+           mu4e-attachment-dir "~/Downloads"
+           mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain"
+           mu4e-update-interval 300
+           mu4e-use-fancy-chars t
+           mu4e-view-show-addresses t
+           mu4e-view-show-images t))
+
+(setq +mu4e-gmail-accounts
+      '(("kbakheat@gmail.com" . "/kbakheat-gmail")
+        ("kirolsb5@gmail.com" . "/kirolsb5-gmail")))
+(when (fboundp 'imagemagick-register-types)
+  (imagemagick-register-types))
+#+end_src
+***** =mu4e-views=
+#+begin_src emacs-lisp :tangle packages.el
+(package! mu4e-views)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! mu4e-views
+  :init
+  (map! :map mu4e-headers-mode-map
+        :localleader
+        (:desc "Select views"                  "v"     #'mu4e-views-mu4e-select-view-msg-method)
+        (:desc "Cursor view window down"       "j"     #'mu4e-views-cursor-msg-view-window-down)
+        (:desc "Cursor view window up"         "k"     #'mu4e-views-cursor-msg-view-window-up)
+        (:desc "Toggle auto view selected msg" "f"     #'mu4e-views-toggle-auto-view-selected-message)
+        (:desc "View nonblocked html"          "i"     #'mu4e-views-mu4e-view-as-nonblocked-html))
+  :config (setq
+           mu4e-views-next-previous-message-behaviour 'always-switch-to-view
+           mu4e-views-inject-email-information-into-html t
+           mu4e-views-auto-view-selected-message t))
+#+end_src
+***** =keybindings=
+#+begin_src emacs-lisp
+(map! :map mu4e-headers-mode-map
+      :localleader
+      (:desc "Update and index mail" "u" #'mu4e-update-mail-and-index))
+#+end_src
+
+***** Config
+****** =msmtp= defaults
 #+begin_src conf :tangle ~/.config/msmtp/config
 defaults
 auth            on
@@ -740,9 +792,9 @@ tls             on
 logfile         ~/.msmtp.log
 #+end_src
 
-***** =mbsync=, =msmtp=, and per-account setup
-****** Main gmail
-******* =emacs= config
+****** =mbsync=, =msmtp=, and per-account setup
+******* Main gmail
+******** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "kbakheat-gmail"
   '((mu4e-sent-folder       . "/kbakheat-gmail/Sent Mail")
@@ -754,7 +806,7 @@ logfile         ~/.msmtp.log
   t)
 #+end_src
 
-******* =mbsync= config
+******** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
 IMAPAccount     kbakheat-gmail
 Host            imap.gmail.com
@@ -780,7 +832,7 @@ Expunge         Both
 SyncState       *
 MaxMessages     20000
 #+end_src
-******* =msmtp= config
+******** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         kbakheat-gmail
 host            smtp.gmail.com
@@ -792,8 +844,8 @@ from            kbakheat@gmail.com
 account         default : kbakheat-gmail
 #+end_src
 
-****** Secondary gmail
-******* =emacs= config
+******* Secondary gmail
+******** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "kirolsb5-gmail"
   '((mu4e-sent-folder       . "/kirolsb5-gmail/Sent Mail")
@@ -805,7 +857,7 @@ account         default : kbakheat-gmail
   t)
 #+end_src
 
-******* =mbsync= config
+******** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
 IMAPAccount kirolsb5-gmail
 Host imap.gmail.com
@@ -831,7 +883,7 @@ Expunge Both
 SyncState *
 #+end_src
 
-******* =msmtp= config
+******** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         kirolsb5-gmail
 host            smtp.gmail.com
@@ -841,8 +893,8 @@ user            kirolsb5@gmail.com
 passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
 from            kirolsb5@gmail.com
 #+end_src
-****** Detroit Mercy email
-******* =emacs= config
+******* Detroit Mercy email
+******** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "bakheakm-udmercy"
   '((mu4e-sent-folder       . "/bakheakm-udmercy/Sent Items")
@@ -854,7 +906,7 @@ from            kirolsb5@gmail.com
   t)
 #+end_src
 
-******* =mbsync= config
+******** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
 IMAPAccount bakheakm-udmercy
 Host outlook.office365.com
@@ -882,7 +934,7 @@ Expunge Both
 Sync All
 #+end_src
 
-******* =msmtp= config
+******** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         bakheakm-udmercy
 host            smtp.office365.com
@@ -892,57 +944,6 @@ auth            xoauth2
 user            bakheakm@udmercy.edu
 passwordeval    "mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
 from            bakheakm@udmercy.edu
-#+end_src
-*** Emacs setup
-**** =msmtp=
-#+begin_src emacs-lisp
-(use-package! mu4e
-  :init (if (eq system-type 'darwin)
-            (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
-  :config (setq
-           sendmail-program "msmtp"
-           send-mail-function #'smtpmail-send-it
-           message-sendmail-f-is-evil t
-           message-sendmail-extra-arguments '("--read-envelope-from")
-           message-send-mail-function #'message-send-mail-with-sendmail
-           mu4e-attachment-dir "~/Downloads"
-           mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain"
-           mu4e-update-interval 300
-           mu4e-use-fancy-chars t
-           mu4e-view-show-addresses t
-           mu4e-view-show-images t))
-
-(setq +mu4e-gmail-accounts
-      '(("kbakheat@gmail.com" . "/kbakheat-gmail")
-        ("kirolsb5@gmail.com" . "/kirolsb5-gmail")))
-(when (fboundp 'imagemagick-register-types)
-  (imagemagick-register-types))
-#+end_src
-**** =mu4e-views=
-#+begin_src emacs-lisp :tangle packages.el
-(package! mu4e-views)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! mu4e-views
-  :init
-  (map! :map mu4e-headers-mode-map
-        :localleader
-        (:desc "Select views"                  "v"     #'mu4e-views-mu4e-select-view-msg-method)
-        (:desc "Cursor view window down"       "j"     #'mu4e-views-cursor-msg-view-window-down)
-        (:desc "Cursor view window up"         "k"     #'mu4e-views-cursor-msg-view-window-up)
-        (:desc "Toggle auto view selected msg" "f"     #'mu4e-views-toggle-auto-view-selected-message)
-        (:desc "View nonblocked html"          "i"     #'mu4e-views-mu4e-view-as-nonblocked-html))
-  :config (setq
-           mu4e-views-next-previous-message-behaviour 'always-switch-to-view
-           mu4e-views-inject-email-information-into-html t
-           mu4e-views-auto-view-selected-message t))
-#+end_src
-**** =keybindings=
-#+begin_src emacs-lisp
-(map! :map mu4e-headers-mode-map
-      :localleader
-      (:desc "Update and index mail" "u" #'mu4e-update-mail-and-index))
 #+end_src
 ** Fonts
 Setting fonts and some emojis.
