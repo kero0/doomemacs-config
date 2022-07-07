@@ -398,8 +398,10 @@ gist
  +peek)
 magit
 make
-taskrunner
+(pass
+ +auth)
 pdf
+taskrunner
 #+end_src
 
 These are just other tools that I have disabled.
@@ -668,6 +670,18 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (setq doom-theme 'doom-palenight)
 (map! :leader
       :desc "Load new theme" "h t" #'load-theme)
+#+end_src
+** LSP
+#+begin_src  emacs-lisp
+(setq
+ lsp-completion-enable t
+ lsp-enable-snippet t
+ lsp-enable-folding t
+ lsp-enable-indentation t
+ lsp-enable-file-watchers t
+ lsp-enable-on-type-formatting t
+ lsp-enable-relative-indentation t
+ lsp-enable-semantic-highlighting t)
 #+end_src
 ** DAP
 Trying out DAP for my debugger
