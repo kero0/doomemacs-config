@@ -434,6 +434,7 @@ Exactly the same as the default emacs config.
 #+html: </details>
 
 ** Lang
+
 #+html: <details><summary>lang</summary>
 
 I write code in many different languages, both because of school and
