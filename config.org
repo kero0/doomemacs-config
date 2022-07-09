@@ -1243,31 +1243,47 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
 #+end_src
 *** =ox-latex=
 **** Syntax highlighting
-I don't want to constantly have exports creating =minted= folders with
-each export. This allows me to default to =lstlisings=, and if I don't
-like it I can include something like
-
-#+begin_src org :exports none :results none :tangle no
-#+latex_header: \usepackage[linenos, breaklines, breakanywhere]{minted}
-#+latex_header: \usepackage{mdframed}
-#+latex_header: \usemintedstyle{colorful}
-#+latex_header: \surroundwithmdframed{minted}
-# Local Variables:
-# org-latex-listings: minted
-# End:
+#+begin_src  emacs-lisp :tangle packages.el
+(package! engrave-faces
+  :recipe (:host github :repo "tecosaur/engrave-faces"))
 #+end_src
 
-to the bottom of a file to get an export with =minted=.
+#+name: engrave-faces-init
+#+begin_src emacs-lisp
+(defvar-local org-export-has-code-p nil)
 
-#+begin_src  emacs-lisp
-(after! ox-latex
-  (setq org-latex-listings t)
-  (setq org-latex-pdf-process
-        (mapcar (lambda (s)
-                  (replace-regexp-in-string "%latex -interact" "%latex -shell-escape -interact" s))
-                org-latex-pdf-process)))
+(defadvice! org-export-expect-no-code (&rest _)
+  :before #'org-export-as
+  (setq org-export-has-code-p nil))
+
+(defadvice! org-export-register-code (&rest _)
+  :after #'org-latex-src-block
+  :after #'org-latex-inline-src-block-engraved
+  (setq org-export-has-code-p t))
+
+(defadvice! org-latex-example-block-engraved (orig-fn example-block contents info)
+  "Like `org-latex-example-block', but supporting an engraved backend"
+  :around #'org-latex-example-block
+  (let ((output-block (funcall orig-fn example-block contents info)))
+    (if (eq 'engraved (plist-get info :latex-listings))
+        (format "\\begin{Code}[alt]\n%s\n\\end{Code}" output-block)
+      output-block)))
 #+end_src
 
+#+begin_src emacs-lisp :noweb yes
+(use-package! engrave-faces-latex
+  :after ox-latex
+  :init
+  <<engrave-faces-init>>
+  :config
+  (setq org-latex-listings 'engraved))
+(use-package! engrave-faces-html
+  :after ox-html
+  :init
+  <<engrave-faces-init>>
+  :config
+  (setq org-latex-listings 'engraved))
+#+end_src
 **** Classes
 #+begin_src  emacs-lisp
 (after! ox-latex
