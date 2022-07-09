@@ -631,6 +631,11 @@ As much as I like /"M-x"/ to type commands, I think /"SPC ;"/ is sometimes easie
 (map! :leader
       (:desc "Debug on error" "t d" #'toggle-debug-on-error))
 #+end_src
+*** Pass
+#+begin_src emacs-lisp
+(map! :leader
+      (:desc "Pass" "o p" #'pass))
+#+end_src
 ** Global auto revert mode
 Enable =global-auto-revert-mode= in buffers like =dired=.
 #+begin_src emacs-lisp
