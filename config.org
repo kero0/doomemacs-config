@@ -1198,12 +1198,12 @@ I don't use this that often but it is convenient when I occasionally need it.
                '("r" "Templates for religious meditations"))
   (add-to-list
    'org-roam-capture-templates
-   '("rs" "Saint" plain "#+roam_tags: \"Saint Type: ${saint type}\" \"Years: ${birth year}-${death year}\" \"Country: ${country}\" \"City: ${city}\"\n\n* Birth\n%?\n\n* Life\n\n\n* Death\n\n\n* Related saints\n\n"
+   '("rs" "Saint" plain "#+filetags: \"Saint Type: ${saint type}\" \"Years: ${birth year}-${death year}\" \"Country: ${country}\" \"City: ${city}\"\n\n* Birth\n%?\n\n* Life\n\n\n* Death\n\n\n* Related saints\n\n"
      :if-new (file+head "religious/saints/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
      :unnarrowed t))
   (add-to-list
    'org-roam-capture-templates
-   '("rb" "Bible Study" plain "#+roam_tags: \"Book: ${book}\" \"Topic: ${topic}\"\n\n* Topic\n\n* Related\n** Passages\n\n** Meditations\n\n* Personal Meditation\n\n"
+   '("rb" "Bible Study" plain "#+filetags: \"Book: ${book}\" \"Topic: ${topic}\"\n\n* Topic\n\n* Related\n** Passages\n\n** Meditations\n\n* Personal Meditation\n\n"
      :if-new (file+head "religious/bible-study/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
      :unnarrowed t)))
 #+end_src
