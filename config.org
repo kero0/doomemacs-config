@@ -750,12 +750,13 @@ mu init \
   && \
 mu index
 #+end_src
-**** =emacs=
-***** =msmtp=
+*** =emacs=
+**** =msmtp=
 #+begin_src emacs-lisp
 (use-package! mu4e
   :init (if (eq system-type 'darwin)
             (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
+  :commands =mu4e
   :config (setq
            sendmail-program "msmtp"
            send-mail-function #'smtpmail-send-it
@@ -775,35 +776,16 @@ mu index
 (when (fboundp 'imagemagick-register-types)
   (imagemagick-register-types))
 #+end_src
-***** =mu4e-views=
-#+begin_src emacs-lisp :tangle packages.el
-(package! mu4e-views)
-#+end_src
-
+**** =keybindings=
 #+begin_src emacs-lisp
-(use-package! mu4e-views
-  :init
-  (map! :map mu4e-headers-mode-map
-        :localleader
-        (:desc "Select views"                  "v"     #'mu4e-views-mu4e-select-view-msg-method)
-        (:desc "Cursor view window down"       "j"     #'mu4e-views-cursor-msg-view-window-down)
-        (:desc "Cursor view window up"         "k"     #'mu4e-views-cursor-msg-view-window-up)
-        (:desc "Toggle auto view selected msg" "f"     #'mu4e-views-toggle-auto-view-selected-message)
-        (:desc "View nonblocked html"          "i"     #'mu4e-views-mu4e-view-as-nonblocked-html))
-  :config (setq
-           mu4e-views-next-previous-message-behaviour 'always-switch-to-view
-           mu4e-views-inject-email-information-into-html t
-           mu4e-views-auto-view-selected-message t))
+(use-package! mu4e
+  :config (map! :map mu4e-headers-mode-map
+                :localleader
+                (:desc "Update and index mail"  "u" #'mu4e-update-mail-and-index)
+                (:desc "View in ..."            "v" #'mu4e-view-action)))
 #+end_src
-***** =keybindings=
-#+begin_src emacs-lisp
-(map! :map mu4e-headers-mode-map
-      :localleader
-      (:desc "Update and index mail" "u" #'mu4e-update-mail-and-index))
-#+end_src
-
-***** Config
-****** =msmtp= defaults
+*** Config
+**** =msmtp= defaults
 #+begin_src conf :tangle ~/.config/msmtp/config
 defaults
 auth            on
@@ -811,9 +793,9 @@ tls             on
 logfile         ~/.msmtp.log
 #+end_src
 
-****** =mbsync=, =msmtp=, and per-account setup
-******* Main gmail
-******** =emacs= config
+**** =mbsync=, =msmtp=, and per-account setup
+***** Main gmail
+****** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "kbakheat-gmail"
   '((mu4e-sent-folder       . "/kbakheat-gmail/Sent Mail")
@@ -825,33 +807,34 @@ logfile         ~/.msmtp.log
   t)
 #+end_src
 
-******** =mbsync= config
+****** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount     kbakheat-gmail
-Host            imap.gmail.com
-User            kbakheat@gmail.com
-PassCmd         "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
-SSLType         IMAPS
-AuthMechs       Login
+IMAPAccount             kbakheat-gmail
+Host                    imap.gmail.com
+User                    kbakheat@gmail.com
+PassCmd                 "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
+SSLType                 IMAPS
+AuthMechs               Login
 
-IMAPStore       kbakheat-gmail-remote
-Account         kbakheat-gmail
+IMAPStore               kbakheat-gmail-remote
+Account                 kbakheat-gmail
 
-MaildirStore    kbakheat-gmail-local
-SubFolders      Verbatim
-Path            ~/.local/mail/kbakheat-gmail/
-Inbox           ~/.local/mail/kbakheat-gmail/
+MaildirStore            kbakheat-gmail-local
+SubFolders              Verbatim
+Path                    ~/.local/mail/kbakheat-gmail/
+Inbox                   ~/.local/mail/kbakheat-gmail/
 
-Channel         kbakheat-gmail
-Far             :kbakheat-gmail-remote:
-Near            :kbakheat-gmail-local:
-Patterns        *
-Create          Both
-Expunge         Both
-SyncState       *
-MaxMessages     20000
+Channel                 kbakheat-gmail
+Far                     :kbakheat-gmail-remote:
+Near                    :kbakheat-gmail-local:
+Patterns                *
+Create                  Both
+Expunge                 Both
+SyncState               *
+MaxMessages             20000
+CopyArrivalDate         yes
 #+end_src
-******** =msmtp= config
+****** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         kbakheat-gmail
 host            smtp.gmail.com
@@ -863,8 +846,8 @@ from            kbakheat@gmail.com
 account         default : kbakheat-gmail
 #+end_src
 
-******* Secondary gmail
-******** =emacs= config
+***** Secondary gmail
+****** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "kirolsb5-gmail"
   '((mu4e-sent-folder       . "/kirolsb5-gmail/Sent Mail")
@@ -876,33 +859,33 @@ account         default : kbakheat-gmail
   t)
 #+end_src
 
-******** =mbsync= config
+****** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount kirolsb5-gmail
-Host imap.gmail.com
-User kirolsb5@gmail.com
-PassCmd "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
-SSLType IMAPS
-AuthMechs Login
+IMAPAccount             kirolsb5-gmail
+Host                    imap.gmail.com
+User                    kirolsb5@gmail.com
+PassCmd                 "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
+SSLType                 IMAPS
+AuthMechs               Login
 
-IMAPStore kirolsb5-gmail-remote
-Account kirolsb5-gmail
+IMAPStore               kirolsb5-gmail-remote
+Account                 kirolsb5-gmail
 
-MaildirStore kirolsb5-gmail-local
-SubFolders Verbatim
-Path ~/.local/mail/kirolsb5-gmail/
-Inbox ~/.local/mail/kirolsb5-gmail/
+MaildirStore            kirolsb5-gmail-local
+SubFolders              Verbatim
+Path                    ~/.local/mail/kirolsb5-gmail/
+Inbox                   ~/.local/mail/kirolsb5-gmail/
 
-Channel kirolsb5-gmail
-Far :kirolsb5-gmail-remote:
-Near :kirolsb5-gmail-local:
-Patterns *
-Create Both
-Expunge Both
-SyncState *
+Channel                 kirolsb5-gmail
+Far                     :kirolsb5-gmail-remote:
+Near                    :kirolsb5-gmail-local:
+Patterns                *
+Create                  Both
+Expunge                 Both
+SyncState               *
+CopyArrivalDate         yes
 #+end_src
-
-******** =msmtp= config
+****** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         kirolsb5-gmail
 host            smtp.gmail.com
@@ -912,8 +895,8 @@ user            kirolsb5@gmail.com
 passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
 from            kirolsb5@gmail.com
 #+end_src
-******* Detroit Mercy email
-******** =emacs= config
+***** Detroit Mercy email
+****** =emacs= config
 #+begin_src emacs-lisp
 (set-email-account! "bakheakm-udmercy"
   '((mu4e-sent-folder       . "/bakheakm-udmercy/Sent Items")
@@ -925,35 +908,35 @@ from            kirolsb5@gmail.com
   t)
 #+end_src
 
-******** =mbsync= config
+****** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount bakheakm-udmercy
-Host outlook.office365.com
-User bakheakm@udmercy.edu
-PassCmd "~/scripts/mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
-SSLType IMAPS
-AuthMechs XOAUTH2
-SSLVersions TLSv1.2
-Port 993
+IMAPAccount             bakheakm-udmercy
+Host                    outlook.office365.com
+User                    bakheakm@udmercy.edu
+PassCmd                 "~/scripts/mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
+SSLType                 IMAPS
+AuthMechs               XOAUTH2
+SSLVersions             TLSv1.2
+Port                    993
 
-IMAPStore bakheakm-udmercy-remote
-Account bakheakm-udmercy
+IMAPStore               bakheakm-udmercy-remote
+Account                 bakheakm-udmercy
 
-MaildirStore bakheakm-udmercy-local
-Path ~/.local/mail/bakheakm-udmercy/
-Inbox ~/.local/mail/bakheakm-udmercy/Inbox
-SubFolders Verbatim
+MaildirStore            bakheakm-udmercy-local
+Path                    ~/.local/mail/bakheakm-udmercy/
+Inbox                   ~/.local/mail/bakheakm-udmercy/Inbox
+SubFolders              Verbatim
 
-Channel bakheakm-udmercy
-Far :bakheakm-udmercy-remote:
-Near :bakheakm-udmercy-local:
-Patterns *
-Create Both
-Expunge Both
-Sync All
+Channel                 bakheakm-udmercy
+Far                     :bakheakm-udmercy-remote:
+Near                    :bakheakm-udmercy-local:
+Patterns                *
+Create                  Both
+Expunge                 Both
+Sync                    All
+CopyArrivalDate         yes
 #+end_src
-
-******** =msmtp= config
+****** =msmtp= config
 #+begin_src conf :tangle ~/.config/msmtp/config
 account         bakheakm-udmercy
 host            smtp.office365.com
