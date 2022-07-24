@@ -647,8 +647,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (map! :leader
        (:desc "Comment/uncomment lines" "t /" #'comment-line))
 #+end_src
-
-** Auto save my files.
+** Auto save my files
 #+begin_src  emacs-lisp
 (setq auto-save-default t
       make-backup-files t)
@@ -980,9 +979,7 @@ Setting fonts and some emojis.
 (map!
   :leader
   (:prefix ("h" . "help")
-   (:prefix-map ("h" . "command line help")
-    :desc "man" "m" #'man
-    :desc "tldr" "t" #'tldr)))
+   :desc "tldr" "h" #'tldr))
 #+end_src
 
 ** =biblio=
