@@ -654,13 +654,15 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 #+end_src
 
 ** UI
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (setq
  display-line-numbers-type 'relative
  which-key-idle-delay 0.1)
 (+global-word-wrap-mode +1)
+#+end_src
 
-;; Modeline
+*** Modeline
+#+begin_src emacs-lisp
 (unless
     (equal
      "Battery status not available"
@@ -807,26 +809,12 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 
 
 #+end_src
-**** =circadian=
-#+begin_src emacs-lisp :tangle packages.el
-(package! circadian)
-#+end_src
-
+**** Theme switching
 #+begin_src emacs-lisp
 (setq doom-theme 'modus-operandi)
-;; Sets up solar for use with circadian
-(use-package! solar
-  :config
-  (setq calendar-location-name  "Detroit, MI"
-        ;; I got these values from wikipedia.
-        calendar-latitude       '[ 42 19 North ]
-        calendar-longitude      '[ 83 02 West  ]))
-(use-package! circadian
-  :after solar
-  :config
-  (setq circadian-themes '((:sunrise . modus-operandi)
-                           (:sunset  . modus-vivendi)))
-  (circadian-setup))
+
+(map! :leader
+      :desc "Modus theme" "t t" #'modus-themes-toggle)
 #+end_src
 ** LSP
 #+begin_src  emacs-lisp
