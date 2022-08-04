@@ -493,6 +493,7 @@ json                ; At least it ain't XML
  +journal
  +noter
  +org-bullets
+ +present
  +pretty
  +roam2)            ; organize your plain life in plain text
 ;;php               ; perl's insecure younger brother
@@ -1455,6 +1456,14 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
                (:desc "Enable" "e" #'literate-calc-minor-mode)
                (:desc "Evaluate line" "c" #'literate-calc-eval-line)
                (:desc "Insert results" "i" #'literate-calc-insert-results))))
+#+end_src
+*** =org-tree-slide-mode=
+#+begin_src emacs-lisp
+(use-package! org-tree-slide
+  :config
+  (map! :map org-tree-slide-mode-map
+        :n "M-<left>"  #'org-tree-slide-move-previous-tree
+        :n "M-<right>" #'org-tree-slide-move-next-tree))
 #+end_src
 *** Lilypond
 Lilypond is useful for writing some sheet music which I occasionally do in emacs; mostly in org documents and mostly on my mac.
