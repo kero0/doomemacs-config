@@ -1,6 +1,6 @@
 :DOC-CONFIG:
 #+property: header-args :emacs-lisp :tangle config.el
-#+property: header-args :mkdirp yes :comments no :results output silent
+#+property: header-args :mkdirp yes :comments no :results output silent :noweb yes
 #+startup: fold
 :END:
 #+HTML_HEAD: <link rel="stylesheet" href="https://latex.now.sh/style.css">
@@ -200,7 +200,6 @@ I don't need any of these, and so I have these disabled.
 #+html: </details>
 
 ** Completion
-
 #+html: <details><summary>completion</summary>
 
 #+begin_src emacs-lisp :tangle init.el
@@ -401,6 +400,7 @@ make
  +auth)
 pdf
 taskrunner
+tree-sitter
 #+end_src
 
 These are just other tools that I have disabled.
@@ -448,7 +448,7 @@ overall. I very often come here and enable or disable a language.
 ;;agda              ; types of types of types of types...
 ;;beancount         ; mind the GAAP
 (cc
- +lsp)           ; C > C++ == 1 might add +lsp
+ +lsp)              ; C > C++ == 1 might add +lsp
 ;;clojure           ; java with a  emacs-lisp
 ;;common-lisp       ; if you've seen one emacs-lisp, you've seen them all
 ;;coq               ; proofs-as-programs
@@ -456,10 +456,10 @@ overall. I very often come here and enable or disable a language.
 ;;csharp            ; unity, .NET, and mono shenanigans
 ;;data              ; config/data formats
 ;(dart
- ;+flutter)   ; paint ui and not much else
+ ;+flutter)         ; paint ui and not much else
 ;;elixir            ; erlang done right
 ;;elm               ; care for a cup of TEA?
-emacs-lisp        ; drown in parentheses
+emacs-lisp          ; drown in parentheses
 ;;erlang            ; an elegant language for a more civilized age
 ;;ess               ; emacs speaks statistics
 ;;factor
@@ -477,7 +477,7 @@ json                ; At least it ain't XML
 ;;julia             ; a better, faster MATLAB
 ;;kotlin            ; a better, slicker Java(Script)
 (latex
- +cdlatex)            ; writing papers in Emacs has never been so fun
+ +cdlatex)          ; writing papers in Emacs has never been so fun
 ;;lean              ; for folks with too much to prove
 ;;ledger            ; be audit you can be
 ;;lua               ; one-based indices? one-based indices
@@ -496,7 +496,7 @@ markdown            ; writing docs for people to ignore
  +pretty
  +roam2)            ; organize your plain life in plain text
 ;;php               ; perl's insecure younger brother
-plantuml            ; diagrams for confusing people more
+;;plantuml            ; diagrams for confusing people more
 ;;purescript        ; javascript, but functional
 (python             ; beautiful is better than ugly
  +lsp
@@ -578,8 +578,8 @@ literate
 #+html: </details>
 
 * General config
-** My personal info.
-#+begin_src  emacs-lisp
+** My personal info
+#+begin_src emacs-lisp
 (setq user-full-name "Kirols Bakheat"
       user-mail-address "kbakheat@gmail.com")
 #+end_src
@@ -594,7 +594,7 @@ This loads up my personal yasnipptes and adds them to the ones provided by doom.
 #+end_src
 ** Keybindings
 *** Keybindings for my mac.
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (cond (IS-MAC
        (setq mac-command-modifier       'meta
              mac-option-modifier        'meta
@@ -647,7 +647,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
        (:desc "Comment/uncomment lines" "t /" #'comment-line))
 #+end_src
 ** Auto save my files
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (setq auto-save-default t
       make-backup-files t)
 #+end_src
@@ -816,7 +816,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
       :desc "Modus theme" "t t" #'modus-themes-toggle)
 #+end_src
 ** LSP
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (setq
  lsp-completion-enable t
  lsp-enable-snippet t
@@ -829,7 +829,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 #+end_src
 ** DAP
 Trying out DAP for my debugger
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (after! dap-mode
   (setq dap-python-debugger 'debugpy))
 
@@ -864,7 +864,6 @@ Trying out DAP for my debugger
       :desc "dap breakpoint hit count"   "h" #'dap-breakpoint-hit-condition
       :desc "dap breakpoint log message" "l" #'dap-breakpoint-log-message)
 #+end_src
-
 ** Email
 To get my [[*Detroit Mercy email]] to work, I am actually using a patched version of =isync=. I added these patches to the brewfile for =isync=.
 *** Setup
@@ -1000,7 +999,6 @@ account         default : kbakheat-gmail
     (mu4e-compose-signature . "---\nKirols Bakheat"))
   t)
 #+end_src
-
 ****** =mbsync= config
 #+begin_src conf :tangle ~/.mbsyncrc
 IMAPAccount             kirolsb5-gmail
@@ -1092,7 +1090,7 @@ from            bakheakm@udmercy.edu
 ** Fonts
 Setting fonts and some emojis.
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! mixed-pitch
   :hook (org-mode . mixed-pitch-mode)
   :config (setq mixed-pitch-face 'variable-pitch))
@@ -1112,11 +1110,11 @@ Setting fonts and some emojis.
 #+end_src
 
 ** =man= and =tldr=
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! tldr)
 #+end_src
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! tldr
   :commands tldr
   :config (setq tldr-directory-path (expand-file-name "tldr/" doom-etc-dir)))
@@ -1192,7 +1190,7 @@ I don't use this that often but it is convenient when I occasionally need it.
 #+end_src
 ** Org mode
 *** General config
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (defun my/relative-org (dir)
   "Makes a sting representing a directory relative to my org base directory"
   (setq my-org-base-dir "~/org")
@@ -1294,7 +1292,6 @@ I don't use this that often but it is convenient when I occasionally need it.
          org-modern-table-vertical 2
          org-modern-table-horizontal 1.2
          org-modern-star '("⦿" "⦾" "◉" "○" "◈" "◇" "‣" "⁍")))
-
 #+end_src
 *** Roam
 #+begin_src emacs-lisp
@@ -1324,11 +1321,11 @@ I don't use this that often but it is convenient when I occasionally need it.
 Originally had =fragtog= here but switched to =xenops= because it
 doesn't interrupt my typing as bad. I don't like that this messes with other /doom/ keybindings though.
 
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! xenops)
 #+end_src
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! xenops
   :commands (xenops-mode)
   :init (map! :map org-mode-map
@@ -1337,11 +1334,11 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
   :config (setq xenops-math-image-current-scale-factor 2.0))
 #+end_src
 *** Org-appear
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! org-appear)
 #+end_src
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! org-appear
   :commands (org-appear-mode)
   :config (setq
@@ -1350,18 +1347,18 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
            org-appear-autosubmarkers t ))
 #+end_src
 *** Org-auto-tangle
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! org-auto-tangle)
 #+end_src
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! org-auto-tangle
   :hook (org-mode . org-auto-tangle-mode)
   :config (setq org-auto-tangle-default t))
 #+end_src
 *** =ox-latex=
 **** Syntax highlighting
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! engrave-faces
   :recipe (:host github :repo "tecosaur/engrave-faces"))
 #+end_src
@@ -1388,7 +1385,7 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
       output-block)))
 #+end_src
 
-#+begin_src emacs-lisp :noweb yes
+#+begin_src emacs-lisp
 (use-package! engrave-faces-latex
   :after ox-latex
   :init
@@ -1413,7 +1410,7 @@ Occasionally I want to export a file that looks like emacs. This is mostly done 
   :after ox)
 #+end_src
 **** Classes
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (after! ox-latex
   (add-to-list 'org-latex-packages-alist '("" "siunitx"))
   (add-to-list 'org-latex-packages-alist '("" "amsmath"))
@@ -1439,11 +1436,11 @@ Occasionally I want to export a file that looks like emacs. This is mostly done 
                   "\\end{parts}"))))
 #+end_src
 *** =literate-calc-mode=
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (package! literate-calc-mode)
 #+end_src
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (use-package! literate-calc-mode
   :commands (literate-calc-minor-mode
              literate-calc-eval-line
@@ -1482,7 +1479,7 @@ Lilypond is useful for writing some sheet music which I occasionally do in emacs
 
 #+html: <details><summary>config.el</summary>
 
-#+begin_src  emacs-lisp
+#+begin_src emacs-lisp
 (provide 'config)
 ;;; config.el ends here
 #+end_src
@@ -1491,7 +1488,7 @@ Lilypond is useful for writing some sheet music which I occasionally do in emacs
 
 #+html: <details><summary>init.el</summary>
 
-#+begin_src  emacs-lisp :tangle init.el
+#+begin_src emacs-lisp :tangle init.el
 (provide 'init)
 ;;; init.el ends here
 #+end_src
@@ -1500,7 +1497,7 @@ Lilypond is useful for writing some sheet music which I occasionally do in emacs
 
 #+html: <details><summary>init.el</summary>
 
-#+begin_src  emacs-lisp :tangle packages.el
+#+begin_src emacs-lisp :tangle packages.el
 (provide 'packages)
 ;;; packages.el ends here
 #+end_src
