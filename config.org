@@ -1411,6 +1411,16 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
   :config
   (setq org-latex-listings 'engraved))
 #+end_src
+**** =ox-chameleon=
+Occasionally I want to export a file that looks like emacs. This is mostly done for presentation's sake.
+#+begin_src emacs-lisp :tangle packages.el
+(package! ox-chameleon
+  :recipe (:host github :repo "tecosaur/ox-chameleon"))
+#+end_src
+#+begin_src emacs-lisp
+(use-package! ox-chameleon
+  :after ox)
+#+end_src
 **** Classes
 #+begin_src  emacs-lisp
 (after! ox-latex
