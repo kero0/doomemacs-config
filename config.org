@@ -880,14 +880,13 @@ Trying out DAP for my debugger
 
 ** Email
 To get my [[*Detroit Mercy email]] to work, I am actually using a patched version of =isync=. I added these patches to the brewfile for =isync=.
-*** Outside of Emacs
-**** Setup
+*** Setup
 :PROPERTIES:
 :header-args: :sh :tangle no :eval never
 :END:
 Install deps on a mac.
 #+begin_src sh :eval never
-brew install isync msmtp mu && \
+brew install isync msmtp mu openssl@1.1
 #+end_src
 
 Setup =mu=.
@@ -903,38 +902,42 @@ mu init \
 mu index
 #+end_src
 *** =emacs=
-**** =msmtp=
 #+begin_src emacs-lisp
 (use-package! mu4e
   :init (if (eq system-type 'darwin)
             (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
   :commands =mu4e
-  :config (setq
-           sendmail-program "msmtp"
-           send-mail-function #'smtpmail-send-it
-           message-sendmail-f-is-evil t
-           message-sendmail-extra-arguments '("--read-envelope-from")
-           message-send-mail-function #'message-send-mail-with-sendmail
-           mu4e-attachment-dir "~/Downloads"
-           mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain"
-           mu4e-update-interval 300
-           mu4e-use-fancy-chars t
-           mu4e-view-show-addresses t
-           mu4e-view-show-images t))
+  :config
+  (map! :map mu4e-headers-mode-map
+        :localleader
+        (:desc "Update and index mail"  "u" #'mu4e-update-mail-and-index)
+        (:desc "View in ..."            "v" #'mu4e-view-action))
+  (imagemagick-register-types)
+  (setq
+   sendmail-program "msmtp"
+   send-mail-function #'smtpmail-send-it
+   message-sendmail-f-is-evil t
+   message-sendmail-extra-arguments '("--read-envelope-from")
+   message-send-mail-function #'message-send-mail-with-sendmail
+   mu4e-attachment-dir "~/Downloads"
+   mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain"
+   mu4e-update-interval 300
+   mu4e-use-fancy-chars t
+   mu4e-view-show-addresses t
+   mu4e-view-show-images t
+   mu4e-change-filenames-when-moving t)
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Last 7 days"
+                 :query "date:7d..now AND NOT flag:trashed"
+                 :key ?w))
+  (add-to-list 'mu4e-bookmarks
+               '(:name "Unread messages"
+                 :query "flag:unread AND NOT flag:trashed"
+                 :key ?u)))
 
 (setq +mu4e-gmail-accounts
       '(("kbakheat@gmail.com" . "/kbakheat-gmail")
         ("kirolsb5@gmail.com" . "/kirolsb5-gmail")))
-(when (fboundp 'imagemagick-register-types)
-  (imagemagick-register-types))
-#+end_src
-**** =keybindings=
-#+begin_src emacs-lisp
-(use-package! mu4e
-  :config (map! :map mu4e-headers-mode-map
-                :localleader
-                (:desc "Update and index mail"  "u" #'mu4e-update-mail-and-index)
-                (:desc "View in ..."            "v" #'mu4e-view-action)))
 #+end_src
 *** Config
 **** =msmtp= defaults
