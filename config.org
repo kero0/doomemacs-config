@@ -209,16 +209,15 @@ I don't need any of these, and so I have these disabled.
  +childframe)
 ;;helm
 ;;ido
-;(ivy
-; +fuzzy
-; +icons
-; +prescient)
-(vertico
- +icons)
+(ivy
+ +fuzzy
+ +icons
+ +prescient)
+;; (vertico
+;;  +icons)
 #+end_src
 
 #+html: </details>
-
 ** UI
 
 #+html: <details><summary>ui</summary>
