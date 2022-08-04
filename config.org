@@ -1119,13 +1119,14 @@ Setting fonts and some emojis.
 
 #+begin_src  emacs-lisp
 (use-package! tldr
+  :commands tldr
   :config (setq tldr-directory-path (expand-file-name "tldr/" doom-etc-dir)))
 (map!
   :leader
-  (:prefix ("h" . "help")
-   :desc "tldr" "h" #'tldr))
+   (:prefix-map ("h h" . "command line help")
+    :desc "man" "m" #'man
+    :desc "tldr" "t" #'tldr))
 #+end_src
-
 ** =biblio=
 #+begin_src emacs-lisp
 (after! org-cite
