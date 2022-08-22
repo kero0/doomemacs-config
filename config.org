@@ -594,8 +594,7 @@ This loads up my personal yasnipptes and adds them to the ones provided by doom.
 (cond (IS-MAC
        (setq mac-command-modifier       'meta
              mac-option-modifier        'meta
-             mac-right-option-modifier  'alt
-             mac-pass-control-to-system nil)))
+             mac-right-option-modifier  'alt)))
 #+end_src
 
 *** Remap eval
