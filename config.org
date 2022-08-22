@@ -258,7 +258,8 @@ ophints
 (popup
  +all
  +defaults)
-vc-gutter
+(vc-gutter
+ +diff-hl)
 workspaces
 zen
 #+end_src
