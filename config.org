@@ -1266,16 +1266,16 @@ I don't use this that often but it is convenient when I occasionally need it.
 #+end_src
 **** =org-agenda=
 #+begin_src emacs-lisp
-(use-package! org-agenda
-  :config (setq
-           org-agenda-tags-column 0
-           org-agenda-block-separator ?─
-           org-agenda-time-grid
-             '((daily today require-timed)
-               (800 1000 1200 1400 1600 1800 2000)
-               " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-           org-agenda-current-time-string
-             "⭠ now ─────────────────────────────────────────────────"))
+(after! org-agenda
+  (setq
+   org-agenda-tags-column 0
+   org-agenda-block-separator ?─
+   org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+   org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────"))
 #+end_src
 **** =org-modern=
 #+begin_src emacs-lisp :tangle packages.el
