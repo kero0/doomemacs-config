@@ -348,10 +348,10 @@ liked so far.
 
 #+begin_src emacs-lisp :tangle init.el
 :term
-;;eshell
+eshell
 ;;shell
 ;;term
-vterm
+;;vterm
 #+end_src
 
 #+html: </details>
