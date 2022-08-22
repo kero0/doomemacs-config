@@ -1207,6 +1207,8 @@ I don't use this that often but it is convenient when I occasionally need it.
               :localleader
               (:prefix ("SPC" . "Personal org map")))
 
+  (setq org-clock-persist t)
+  (org-clock-persistence-insinuate)
 
   (defun locally-defer-font-lock ()
     "Set jit-lock defer and stealth, when buffer is over a certain size."
