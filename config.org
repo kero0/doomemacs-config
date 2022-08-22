@@ -243,12 +243,6 @@ unicode or both in them.
 unicode
 #+end_src
 
-I find =doom-quit= cute so here it is.
-
-#+begin_src emacs-lisp :tangle init.el
-doom-quit
-#+end_src
-
 These all in some way or another make code easier for me to read or make
 the UI of emacs display some information that I like.
 
@@ -282,6 +276,7 @@ deft
 For some reason or another I don't have each of these enabled.
 
 #+begin_src emacs-lisp :tangle init.el
+;;doom-quit
 ;;hydra
 ;;minimap           ; show a map of the code on the side
 ;;neotree           ; a project drawer, like NERDTree for vim
