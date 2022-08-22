@@ -811,6 +811,29 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (map! :leader
       :desc "Modus theme" "t t" #'modus-themes-toggle)
 #+end_src
+*** Fonts
+Setting fonts and some emojis.
+
+#+begin_src emacs-lisp
+(use-package! mixed-pitch
+  :hook (org-mode . mixed-pitch-mode)
+  :config (setq mixed-pitch-face 'variable-pitch))
+(use-package! emojify
+  :hook (after-init . global-emojify-mode))
+
+(setq doom-font                (font-spec :family "JetBrainsMono Nerd Font Mono" :size 18.0)
+      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 18.0)
+      doom-unicode-font        (font-spec :family "JuliaMono" :size 18.0)
+      doom-big-font            (font-spec :family "JetBrainsMono Nerd Font" :size 23.0))
+(after! doom-themes
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t))
+(use-package! doom-themes)
+(custom-set-faces!
+  '(font-lock-comment-face :slant italic)
+  '(font-lock-keyword-face :slant italic))
+#+end_src
+
 ** LSP
 #+begin_src emacs-lisp
 (setq
@@ -1083,28 +1106,6 @@ user            bakheakm@udmercy.edu
 passwordeval    "mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
 from            bakheakm@udmercy.edu
 #+end_src
-** Fonts
-Setting fonts and some emojis.
-
-#+begin_src emacs-lisp
-(use-package! mixed-pitch
-  :hook (org-mode . mixed-pitch-mode)
-  :config (setq mixed-pitch-face 'variable-pitch))
-(use-package! emojify
-  :hook (after-init . global-emojify-mode))
-
-(setq doom-font                (font-spec :family "JetBrainsMono Nerd Font Mono" :size 17.0)
-      doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font" :size 17.0)
-      doom-unicode-font        (font-spec :family "JuliaMono" :size 16.0)
-      doom-big-font            (font-spec :family "JetBrainsMono Nerd Font" :size 25.0))
-(after! doom-themes
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t))
-(custom-set-faces!
-  '(font-lock-comment-face :slant italic)
-  '(font-lock-keyword-face :slant italic))
-#+end_src
-
 ** =man= and =tldr=
 #+begin_src emacs-lisp :tangle packages.el
 (package! tldr)
