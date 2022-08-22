@@ -1459,16 +1459,17 @@ Occasionally I want to export a file that looks like emacs. This is mostly done 
 Lilypond is useful for writing some sheet music which I occasionally do in emacs; mostly in org documents and mostly on my mac.
 
 #+begin_src emacs-lisp :tangle packages.el
-(if (eq system-type 'darwin)
-    (package! lilypond
+(if IS-MAC
+    (package! lilypond-mode
       :recipe (:local-repo "/opt/homebrew/share/emacs/site-lisp/lilypond/")))
 #+end_src
 #+begin_src emacs-lisp
-(if (eq system-type 'darwin)
-    (use-package! lilypond-mode
-      :commands LilyPond-mode
-      :init (defalias 'lilypond-mode 'LilyPond-mode)
-      :config (setq org-babel-lilypond-commands '("/opt/homebrew/bin/lilypond" "open" "open"))))
+(use-package! lilypond-mode
+  :commands LilyPond-mode
+  :init (defalias 'lilypond-mode 'LilyPond-mode)
+  :config
+  (if IS-MAC
+      (setq org-babel-lilypond-commands '("/opt/homebrew/bin/lilypond" "open" "open"))))
 #+end_src
 * Footers
 
