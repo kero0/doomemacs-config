@@ -788,18 +788,19 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
    (5 . (rainbow (height 1.1)))
    (t . (variable-pitch extrabold))))
 
-(use-package! theme-changer
-  :commands change-theme)
-
 (setq doom-theme 'modus-operandi)
 
-(use-package! doom-themes
-  :config
-  (defun my/modus-themes-custom-faces ()
-    (set-face-attribute 'cursor nil :background (modus-themes-color 'blue-alt-faint))
-    (custom-set-faces! `(cursor nil :background ,(modus-themes-color 'blue-alt-faint)))
-    (set-face-attribute 'font-lock-type-face nil :foreground (modus-themes-color 'magenta-alt)))
-  (add-hook 'modus-themes-after-load-theme-hook #'my/modus-themes-custom-faces))
+(defun my/modus-themes-custom-faces ()
+  (modus-themes-with-colors
+    (custom-set-faces
+     ;; Replace green with blue if you use `modus-themes-deuteranopia'.
+     `(git-gutter-fr:added ((,class :foreground ,green-fringe-bg)))
+     `(git-gutter-fr:deleted ((,class :foreground ,red-fringe-bg)))
+     `(git-gutter-fr:modified ((,class :foreground ,yellow-fringe-bg)))))
+  (set-face-attribute 'cursor nil :background (modus-themes-color 'blue-alt-faint))
+  (custom-set-faces! `(cursor nil :background ,(modus-themes-color 'blue-alt-faint)))
+  (set-face-attribute 'font-lock-type-face nil :foreground (modus-themes-color 'magenta-alt)))
+(add-hook 'modus-themes-after-load-theme-hook #'my/modus-themes-custom-faces)
 
 
 #+end_src
