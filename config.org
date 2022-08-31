@@ -464,7 +464,8 @@ emacs-lisp          ; drown in parentheses
 ;;fstar             ; (dependent) types and (monadic) effects and Z3
 ;;gdscript          ; the language you waited for
 ;;(go +lsp)         ; the hipster dialect
-;;(haskell +dante)  ; a language that's lazier than I am
+(haskell
+ +lsp)              ; a language that's lazier than I am
 ;;hy                ; readability of scheme w/ speed of python
 ;;idris             ; a language you can depend on
 json                ; At least it ain't XML
@@ -521,9 +522,7 @@ yaml                ; JSON, but readable
 #+html: </details>
 
 ** Email
-
 #+html: <details><summary>email</summary>
-
 #+begin_src emacs-lisp :tangle init.el
 :email
 (mu4e
@@ -532,9 +531,7 @@ yaml                ; JSON, but readable
 ;;notmuch
 ;;(wanderlust +gmail)
 #+end_src
-
 #+html: </details>
-
 ** App
 
 #+html: <details><summary>app</summary>
