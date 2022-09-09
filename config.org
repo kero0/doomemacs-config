@@ -511,10 +511,10 @@ literate
 ** Add my snippets
 This loads up my personal yasnipptes and adds them to the ones provided by doom.
 #+begin_src emacs-lisp
-(setq my/snippets-dir "~/.config/doom/snippets")
+(defvar my/snippets-dir (expand-file-name "snippets/" doom-user-dir))
 (eval-after-load 'yasnippet
   (lambda () (add-to-list 'yas-snippet-dirs 'my/snippets-dir)
-  (yas-load-directory my/snippets-dir t)))
+    (yas-load-directory my/snippets-dir t)))
 #+end_src
 ** Keybindings
 *** Keybindings for my mac.
