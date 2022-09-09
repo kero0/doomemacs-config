@@ -1047,12 +1047,12 @@ from            bakheakm@udmercy.edu
 #+begin_src emacs-lisp
 (use-package! tldr
   :commands tldr
-  :config (setq tldr-directory-path (expand-file-name "tldr/" doom-etc-dir)))
+  :config (setq tldr-directory-path (expand-file-name "tldr/" doom-data-dir)))
 (map!
-  :leader
-   (:prefix-map ("h h" . "command line help")
-    :desc "man" "m" #'man
-    :desc "tldr" "t" #'tldr))
+ :leader
+ (:prefix-map ("h h" . "command line help")
+  :desc "man" "m" #'man
+  :desc "tldr" "t" #'tldr))
 #+end_src
 ** =biblio=
 #+begin_src emacs-lisp
