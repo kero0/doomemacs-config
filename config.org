@@ -444,7 +444,7 @@ markdown            ; writing docs for people to ignore
 (python             ; beautiful is better than ugly
  +lsp
  +pyright)
-;;qt                ; the 'cutest' gui framework ever
+qt                  ; the 'cutest' gui framework ever
 ;;racket            ; a DSL for DSLs
 ;;raku              ; the artist formerly known as perl6
 ;;rest              ; Emacs as a REST client
@@ -842,7 +842,7 @@ mu index
 *** =emacs=
 #+begin_src emacs-lisp
 (use-package! mu4e
-  :init (if (eq system-type 'darwin)
+  :init (if IS-MAC
             (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
   :commands =mu4e
   :config
@@ -851,6 +851,8 @@ mu index
         (:desc "Update and index mail"  "u" #'mu4e-update-mail-and-index)
         (:desc "View in ..."            "v" #'mu4e-view-action))
   (imagemagick-register-types)
+  (defun my/mu-filter (s)
+    (concat "(" s ") AND (NOT flag:trashed) AND (NOT maildir:/.*\/spam|Junk\ Email/)"))
   (setq
    sendmail-program "msmtp"
    send-mail-function #'smtpmail-send-it
@@ -858,24 +860,15 @@ mu index
    message-sendmail-extra-arguments '("--read-envelope-from")
    message-send-mail-function #'message-send-mail-with-sendmail
    mu4e-attachment-dir "~/Downloads"
-   mu4e-html2text-command "iconv -c -t utf-8 | pandoc -f html -t plain"
    mu4e-update-interval 300
    mu4e-use-fancy-chars t
-   mu4e-view-show-addresses t
-   mu4e-view-show-images t
-   mu4e-change-filenames-when-moving t)
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Last 7 days"
-                 :query "date:7d..now AND NOT flag:trashed"
-                 :key ?w))
-  (add-to-list 'mu4e-bookmarks
-               '(:name "Unread messages"
-                 :query "flag:unread AND NOT flag:trashed"
-                 :key ?u)))
-
-(setq +mu4e-gmail-accounts
-      '(("kbakheat@gmail.com" . "/kbakheat-gmail")
-        ("kirolsb5@gmail.com" . "/kirolsb5-gmail")))
+   mu4e-change-filenames-when-moving t
+   mu4e-bookmarks '((:name "Unread messages"      :query (my/mu-filter "flag:unread")     :key ?u)
+                    (:name "Today's messages"     :query (my/mu-filter "date:today..now") :key ?t)
+                    (:name "Last 7 days"          :query (my/mu-filter "date:7d..now")    :key ?b)
+                    (:name "Messages with images" :query (my/mu-filter "mime:image/*")    :key ?i)
+                    (:name "Work emails"          :query "from:/.+@ford.com/"             :key ?w)
+                    (:name "All messages"         :query ""                               :key ?a))))
 #+end_src
 *** Config
 **** =msmtp= defaults
