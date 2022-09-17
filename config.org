@@ -444,7 +444,7 @@ markdown            ; writing docs for people to ignore
 (python             ; beautiful is better than ugly
  +lsp
  +pyright)
-qt                  ; the 'cutest' gui framework ever
+;; qt                  ; the 'cutest' gui framework ever
 ;;racket            ; a DSL for DSLs
 ;;raku              ; the artist formerly known as perl6
 ;;rest              ; Emacs as a REST client
@@ -865,9 +865,9 @@ mu index
    mu4e-change-filenames-when-moving t
    mu4e-bookmarks '((:name "Unread messages"      :query (my/mu-filter "flag:unread")     :key ?u)
                     (:name "Today's messages"     :query (my/mu-filter "date:today..now") :key ?t)
-                    (:name "Last 7 days"          :query (my/mu-filter "date:7d..now")    :key ?b)
+                    (:name "Last 7 days"          :query (my/mu-filter "date:7d..now")    :key ?w)
                     (:name "Messages with images" :query (my/mu-filter "mime:image/*")    :key ?i)
-                    (:name "Work emails"          :query "from:/.+@ford.com/"             :key ?w)
+                    (:name "Work emails"          :query "from:/.+@ford.com/"             :key ?k)
                     (:name "All messages"         :query ""                               :key ?a))))
 #+end_src
 *** Config
