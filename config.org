@@ -342,7 +342,7 @@ gist
  +dictionary
  +offline)
 (lsp
- +peek)
+ +eglot)
 magit
 make
 (pass
@@ -389,15 +389,17 @@ overall. I very often come here and enable or disable a language.
 ;;agda              ; types of types of types of types...
 ;;beancount         ; mind the GAAP
 (cc
- +lsp)              ; C > C++ == 1 might add +lsp
+ +lsp
+ +tree-sitter)      ; C > C++ == 1 might add +lsp
 ;;clojure           ; java with a  emacs-lisp
 ;;common-lisp       ; if you've seen one emacs-lisp, you've seen them all
 ;;coq               ; proofs-as-programs
 ;;crystal           ; ruby at the speed of c
 ;;csharp            ; unity, .NET, and mono shenanigans
 ;;data              ; config/data formats
-;(dart
- ;+flutter)         ; paint ui and not much else
+;; (dart
+;;  +flutter
+;;  +lsp)           ; paint ui and not much else
 ;;elixir            ; erlang done right
 ;;elm               ; care for a cup of TEA?
 emacs-lisp          ; drown in parentheses
@@ -425,7 +427,8 @@ json                ; At least it ain't XML
 lua                 ; one-based indices? one-based indices
 markdown            ; writing docs for people to ignore
 ;;nim               ; python + emacs-lisp at the speed of c
-;;nix               ; I hereby declare "nix geht mehr!"
+(nix
+ +tree-sitter)      ; I hereby declare "nix geht mehr!"
 ;;ocaml             ; an objective camel
 (org
  +dragndrop
@@ -442,7 +445,9 @@ markdown            ; writing docs for people to ignore
 ;;purescript        ; javascript, but functional
 (python             ; beautiful is better than ugly
  +lsp
- +pyright)
+ +poetry
+ +pyright
+ +tree-sitter)
 ;; qt                  ; the 'cutest' gui framework ever
 ;;racket            ; a DSL for DSLs
 ;;raku              ; the artist formerly known as perl6
@@ -454,7 +459,8 @@ markdown            ; writing docs for people to ignore
 ;;scala             ; java, but good
 ;;(scheme +guile)   ; a fully conniving family of emacs-lisps
 (sh                 ; she sells {ba,z,fi}sh shells on the C xor
- +fish)
+ +fish
+ +tree-sitter)
 ;;sml
 ;;solidity          ; do you need a blockchain? No.
 ;;swift             ; who asked for emoji variables?
@@ -479,7 +485,7 @@ yaml                ; JSON, but readable
 :app
 ;;calendar
 ;;emms
-;;everywhere        ; *leave* Emacs!? You must be joking
+everywhere          ; *leave* Emacs!? You must be joking
 ;;irc               ; how neckbeards socialize
 ;;(rss +org)        ; emacs as an RSS reader
 ;;twitter           ; twitter client https://twitter.com/vnought
@@ -501,6 +507,30 @@ literate
 #+end_src
 
 * General config
+** Temporary Fixes
+*** vterm
+#+begin_src emacs-lisp :tangle init.el
+(after! comp
+  ;; HACK Disable native-compilation for some troublesome packages
+  (mapc (doom-partial #'add-to-list 'native-comp-deferred-compilation-deny-list)
+        (list "/emacs-jupyter.*\\.el\\'"
+              "/evil-collection-vterm\\.el\\'"
+              "/vterm\\.el\\'"
+              "/with-editor\\.el\\'")))
+#+end_src
+*** Native-comp
+#+begin_src emacs-lisp :tangle init.el
+(setq native-comp-deferred-compilation nil)
+(after! (doom-packages straight)
+  (setq straight--native-comp-available t))
+#+end_src
+** Load NixOS site-lisp
+
+#+begin_src emacs-lisp
+(when-let ((site-start (locate-library "site-start.el")))
+  (load site-start)
+  (message "Loaded %s" site-start))
+#+end_src
 ** My personal info
 #+begin_src emacs-lisp
 (setq user-full-name "Kirols Bakheat"
@@ -536,22 +566,6 @@ As much as I like /"M-x"/ to type commands, I think /"SPC ;"/ is sometimes easie
 (map! :leader
       (:desc "Run a shell command" "r" #'shell-command))
 #+end_src
-*** xwidget-webkit browser
-#+begin_src emacs-lisp
-(defun my/xwidget-window-close ()
-  "Alternative to `evil-collection-xwidget-webkit-close-tab'. This both closes the tab and closes the window"
-  (interactive)
-  (evil-collection-xwidget-webkit-close-tab)
-  (evil-window-delete)
-  (xwidget-cleanup))
-(map! :map xwidget-webkit-mode-map
-      :n "q" 'my/xwidget-window-close)
-#+end_src
-
-#+begin_src emacs-lisp
-(map! :leader
-      (:desc "xwidget-webkit" "o w" #'xwidget-webkit-browse-url))
-#+end_src
 *** =toggle-debug-on-error=
 #+begin_src emacs-lisp
 (map! :leader
@@ -561,6 +575,48 @@ As much as I like /"M-x"/ to type commands, I think /"SPC ;"/ is sometimes easie
 #+begin_src emacs-lisp
 (map! :leader
       (:desc "Pass" "o p" #'pass))
+#+end_src
+** Shell
+#+begin_src emacs-lisp
+(after! vterm
+  (setq vterm-shell "fish"))
+#+end_src
+** Browser changes
+*** =xwidget-webkit= keybindings
+#+begin_src emacs-lisp
+(defun my/xwidget-window-close ()
+  "Alternative to `evil-collection-xwidget-webkit-close-tab'. This both closes the tab and closes the window"
+  (interactive)
+  (evil-collection-xwidget-webkit-close-tab)
+  (evil-window-delete)
+  (xwidget-cleanup))
+(map! :map xwidget-webkit-mode-map
+      "q" 'my/xwidget-window-close)
+(setq browse-url-browser-function 'xwidget-webkit-browse-url)
+
+(map! :leader
+      (:desc "xwidget-webkit" "o w" #'xwidget-webkit-browse-url))
+#+end_src
+*** =xwwp=
+#+begin_src emacs-lisp :tangle packages.el
+(package! ctable)
+(package! xwwp
+  :recipe (:host github :repo "BlueFlo0d/xwwp" :files ("*.el" "xwwp-readability.(css|js)")))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! xwwp-full
+  :commands (xwwp-section
+             xwwp-follow-link
+             xwwp-ace-toggle
+             xwwp-history-show)
+  :init (map! :map xwidget-webkit-mode-map
+              :localleader
+              (:desc "Jump to section"  "s" #'xwwp-section)
+              (:desc "Follow link"      "l" #'xwwp-follow-link)
+              (:desc "Ace"              "a" #'xwwp-ace-toggle)
+              (:desc "History"          "h" #'xwwp-history-show))
+  :config (use-package! ctable))
 #+end_src
 ** Global auto revert mode
 Enable =global-auto-revert-mode= in buffers like =dired=.
@@ -584,7 +640,6 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (setq
  display-line-numbers-type 'relative
  which-key-idle-delay 1)
-(+global-word-wrap-mode +1)
 #+end_src
 
 *** Modeline
@@ -768,15 +823,72 @@ Setting fonts and some emojis.
 
 ** LSP
 #+begin_src emacs-lisp
-(setq
- lsp-completion-enable t
- lsp-enable-snippet t
- lsp-enable-folding t
- lsp-enable-indentation t
- lsp-enable-file-watchers t
- lsp-enable-on-type-formatting t
- lsp-enable-relative-indentation t
- lsp-enable-semantic-highlighting t)
+;; (when (and (modulep! :tools lsp +eglot) (modulep! :checkers syntax))
+;;   (delq! 'eglot flycheck-checkers))
+
+(when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+  (setq
+   lsp-completion-enable t
+   lsp-enable-snippet t
+   lsp-enable-folding t
+   lsp-enable-indentation t
+   lsp-enable-file-watchers t
+   lsp-enable-on-type-formatting t
+   lsp-enable-relative-indentation t
+   lsp-enable-semantic-highlighting t))
+#+end_src
+
+*** Rust
+#+begin_src emacs-lisp
+(after! rustic
+
+  (map! :map rustic-mode-map
+        :localleader
+        (:desc "Cargo run" "r" #'lsp-rust-analyzer-run)
+        (:desc "Expand macro" "m" #'lsp-rust-analyzer-expand-macro))
+  (setq lsp-rust-all-features t)
+  (setq lsp-rust-analyzer-display-chaining-hints t)
+  (setq lsp-rust-analyzer-display-parameter-hints t)
+  (setq lsp-rust-analyzer-server-display-inlay-hints t)
+  (setq lsp-rust-analyzer-display-lifetime-elision-hints-enable "always")
+  ;; (setq lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (setq lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t)
+  (setq lsp-rust-analyzer-display-closure-return-type-hints t)
+  (setq lsp-rust-analyzer-display-reborrow-hints t)
+  )
+#+end_src
+
+*** LSP in org-mode code blocks
+Copied from tecosaur's config.
+#+begin_src emacs-lisp
+(cl-defmacro lsp-org-babel-enable (lang)
+  "Support LANG in org source code block."
+  (setq centaur-lsp 'lsp-mode)
+  (cl-check-type lang stringp)
+  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
+         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
+    `(progn
+       (defun ,intern-pre (info)
+         (let ((file-name (->> info caddr (alist-get :file))))
+           (unless file-name
+             (setq file-name (make-temp-file "babel-lsp-")))
+           (setq buffer-file-name file-name)
+           (lsp-deferred)))
+       (put ',intern-pre 'function-documentation
+            (format "Enable lsp-mode in the buffer of org source block (%s)."
+                    (upcase ,lang)))
+       (if (fboundp ',edit-pre)
+           (advice-add ',edit-pre :after ',intern-pre)
+         (progn
+           (defun ,edit-pre (info)
+             (,intern-pre info))
+           (put ',edit-pre 'function-documentation
+                (format "Prepare local buffer environment for org source block (%s)."
+                        (upcase ,lang))))))))
+(defvar org-babel-lang-list
+  '("python" "ipython" "bash" "sh" "haskell"))
+(dolist (lang org-babel-lang-list)
+  (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 ** DAP
 Trying out DAP for my debugger
@@ -838,13 +950,10 @@ mu init \
   && \
 mu index
 #+end_src
-*** =emacs=
+*** Main Config
+
 #+begin_src emacs-lisp
-(use-package! mu4e
-  :init (if IS-MAC
-            (add-to-list 'load-path "/opt/homebrew/share/emacs/site-lisp/mu/mu4e"))
-  :commands =mu4e
-  :config
+(after! mu4e
   (map! :map mu4e-headers-mode-map
         :localleader
         (:desc "Update and index mail"  "u" #'mu4e-update-mail-and-index)
@@ -852,6 +961,13 @@ mu index
   (imagemagick-register-types)
   (defun my/mu-filter (s)
     (concat "(" s ") AND (NOT flag:trashed) AND (NOT maildir:/.*\/spam|Junk\ Email/)"))
+  (defvar my/vip-emails '(
+                          "pmegally@gmail.com"
+                          "stmarkmi@ccbchurch.com"
+                          "/.+@udmercy.edu/"
+                          "/.+@ford.com/"))
+  (defun my/mu-filter-vip (s)
+    (mu-filter (mapconcat '(lambda (x) (concat "from:" x)) my/vip-emails " OR ")))
   (setq
    sendmail-program "msmtp"
    send-mail-function #'smtpmail-send-it
@@ -867,22 +983,13 @@ mu index
                     (:name "Last 7 days"          :query (my/mu-filter "date:7d..now")    :key ?w)
                     (:name "Messages with images" :query (my/mu-filter "mime:image/*")    :key ?i)
                     (:name "Work emails"          :query "from:/.+@ford.com/"             :key ?k)
+                    (:name "VIP emails"           :query (my/mu-filter-vip my/vip-emails) :key ?v)
                     (:name "All messages"         :query ""                               :key ?a))))
 #+end_src
-*** Config
-**** =msmtp= defaults
-#+begin_src conf :tangle ~/.config/msmtp/config
-defaults
-auth            on
-tls             on
-logfile         ~/.msmtp.log
-#+end_src
-
-**** =mbsync=, =msmtp=, and per-account setup
-***** Main gmail
-****** =emacs= config
+*** Per-Account config
+**** Main gmail
 #+begin_src emacs-lisp
-(set-email-account! "kbakheat-gmail"
+(set-email-account! "primary"
   '((mu4e-sent-folder       . "/kbakheat-gmail/Sent Mail")
     (mu4e-drafts-folder     . "/kbakheat-gmail/Drafts")
     (mu4e-trash-folder      . "/kbakheat-gmail/Trash")
@@ -892,49 +999,9 @@ logfile         ~/.msmtp.log
   t)
 #+end_src
 
-****** =mbsync= config
-#+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount             kbakheat-gmail
-Host                    imap.gmail.com
-User                    kbakheat@gmail.com
-PassCmd                 "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
-SSLType                 IMAPS
-AuthMechs               Login
-
-IMAPStore               kbakheat-gmail-remote
-Account                 kbakheat-gmail
-
-MaildirStore            kbakheat-gmail-local
-SubFolders              Verbatim
-Path                    ~/.local/mail/kbakheat-gmail/
-Inbox                   ~/.local/mail/kbakheat-gmail/
-
-Channel                 kbakheat-gmail
-Far                     :kbakheat-gmail-remote:
-Near                    :kbakheat-gmail-local:
-Patterns                *
-Create                  Both
-Expunge                 Both
-SyncState               *
-MaxMessages             20000
-CopyArrivalDate         yes
-#+end_src
-****** =msmtp= config
-#+begin_src conf :tangle ~/.config/msmtp/config
-account         kbakheat-gmail
-host            smtp.gmail.com
-port            587
-tls_starttls    on
-user            kbakheat@gmail.com
-passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kbakheat-app-specific.gpg"
-from            kbakheat@gmail.com
-account         default : kbakheat-gmail
-#+end_src
-
-***** Secondary gmail
-****** =emacs= config
+**** Secondary gmail
 #+begin_src emacs-lisp
-(set-email-account! "kirolsb5-gmail"
+(set-email-account! "secondary"
   '((mu4e-sent-folder       . "/kirolsb5-gmail/Sent Mail")
     (mu4e-drafts-folder     . "/kirolsb5-gmail/Drafts")
     (mu4e-trash-folder      . "/kirolsb5-gmail/Trash")
@@ -943,46 +1010,9 @@ account         default : kbakheat-gmail
     (mu4e-compose-signature . "---\nKirols Bakheat"))
   t)
 #+end_src
-****** =mbsync= config
-#+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount             kirolsb5-gmail
-Host                    imap.gmail.com
-User                    kirolsb5@gmail.com
-PassCmd                 "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
-SSLType                 IMAPS
-AuthMechs               Login
-
-IMAPStore               kirolsb5-gmail-remote
-Account                 kirolsb5-gmail
-
-MaildirStore            kirolsb5-gmail-local
-SubFolders              Verbatim
-Path                    ~/.local/mail/kirolsb5-gmail/
-Inbox                   ~/.local/mail/kirolsb5-gmail/
-
-Channel                 kirolsb5-gmail
-Far                     :kirolsb5-gmail-remote:
-Near                    :kirolsb5-gmail-local:
-Patterns                *
-Create                  Both
-Expunge                 Both
-SyncState               *
-CopyArrivalDate         yes
-#+end_src
-****** =msmtp= config
-#+begin_src conf :tangle ~/.config/msmtp/config
-account         kirolsb5-gmail
-host            smtp.gmail.com
-port            587
-tls_starttls    on
-user            kirolsb5@gmail.com
-passwordeval    "gpg --for-your-eyes-only -q --no-tty -d ~/.password-store/google.com/kirolsb5-app-specific.gpg"
-from            kirolsb5@gmail.com
-#+end_src
-***** Detroit Mercy email
-****** =emacs= config
+**** Detroit Mercy email
 #+begin_src emacs-lisp
-(set-email-account! "bakheakm-udmercy"
+(set-email-account! "udmercy"
   '((mu4e-sent-folder       . "/bakheakm-udmercy/Sent Items")
     (mu4e-drafts-folder     . "/bakheakm-udmercy/Drafts")
     (mu4e-trash-folder      . "/bakheakm-udmercy.edu/Trash")
@@ -992,45 +1022,6 @@ from            kirolsb5@gmail.com
   t)
 #+end_src
 
-****** =mbsync= config
-#+begin_src conf :tangle ~/.mbsyncrc
-IMAPAccount             bakheakm-udmercy
-Host                    outlook.office365.com
-User                    bakheakm@udmercy.edu
-PassCmd                 "~/scripts/mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
-SSLType                 IMAPS
-AuthMechs               XOAUTH2
-SSLVersions             TLSv1.2
-Port                    993
-
-IMAPStore               bakheakm-udmercy-remote
-Account                 bakheakm-udmercy
-
-MaildirStore            bakheakm-udmercy-local
-Path                    ~/.local/mail/bakheakm-udmercy/
-Inbox                   ~/.local/mail/bakheakm-udmercy/Inbox
-SubFolders              Verbatim
-
-Channel                 bakheakm-udmercy
-Far                     :bakheakm-udmercy-remote:
-Near                    :bakheakm-udmercy-local:
-Patterns                *
-Create                  Both
-Expunge                 Both
-Sync                    All
-CopyArrivalDate         yes
-#+end_src
-****** =msmtp= config
-#+begin_src conf :tangle ~/.config/msmtp/config
-account         bakheakm-udmercy
-host            smtp.office365.com
-port            587
-tls_starttls    on
-auth            xoauth2
-user            bakheakm@udmercy.edu
-passwordeval    "mutt_oauth2.py ~/.password-store/office.com/bakheakm@udmercy.edu.tokens"
-from            bakheakm@udmercy.edu
-#+end_src
 ** =man= and =tldr=
 #+begin_src emacs-lisp :tangle packages.el
 (package! tldr)
@@ -1041,10 +1032,9 @@ from            bakheakm@udmercy.edu
   :commands tldr
   :config (setq tldr-directory-path (expand-file-name "tldr/" doom-data-dir)))
 (map!
- :leader
- (:prefix-map ("h h" . "command line help")
-  :desc "man" "m" #'man
-  :desc "tldr" "t" #'tldr))
+ :leader :prefix ("h h" . "command line help")
+ :desc "man" "m" #'man
+ :desc "tldr" "t" #'tldr)
 #+end_src
 ** =biblio=
 #+begin_src emacs-lisp
@@ -1059,6 +1049,19 @@ from            bakheakm@udmercy.edu
    ;bibtex-completion-library-path '("/path/to/library/path/")
    ;bibtex-completion-notes-path "/path/to/your/notes/"
    ))
+#+end_src
+** Licenses
+#+begin_src emacs-lisp :tangle packages.el
+(package! lice)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! lice
+  :commands lice)
+(map!
+ :leader :prefix ("i l" . "license")
+ :desc "Insert header" "l" #'lice
+ :desc "Insert file" "f" #'+file-templates/insert-license)
 #+end_src
 ** =string-inflection=
 I don't use this that often but it is convenient when I occasionally need it.
@@ -1103,23 +1106,20 @@ I don't use this that often but it is convenient when I occasionally need it.
 
 #+begin_src emacs-lisp
 (use-package! copilot
-  :commands copilot-mode
-  :bind (("C-TAB" . 'copilot-accept-completion-by-word)
-         ("C-<tab>" . 'copilot-accept-completion-by-word)
-         :map copilot-completion-map
-         ("<tab>" . 'copilot-accept-completion)
-         ("TAB" . 'copilot-accept-completion))
-  :config
-  (if (eq system-type 'darwin)
-      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")))
+  :hook (prog-mode . copilot-mode)
+  :hook (text-mode . copilot-mode)
+  :config (map! (:when (modulep! :completion company)
+                  :i
+                  "M-<tab>"  #'copilot-accept-completion-by-word
+                  :map copilot-completion-map
+                  "<tab>"  #'copilot-accept-completion
+                  "C-<tab>" #'copilot-next-completion
+                  "C-S-<tab>" #'copilot-previous-completion
+                  "M-<tab>" #'copilot-complete)))
 #+end_src
-** =aggressive-indent-mode=
+** =envrc=
 #+begin_src emacs-lisp :tangle packages.el
-(package! aggressive-indent)
-#+end_src
-
-#+begin_src emacs-lisp
-(global-aggressive-indent-mode 1)
+(unpin! envrc)
 #+end_src
 ** Org mode
 *** General config
@@ -1165,7 +1165,6 @@ I don't use this that often but it is convenient when I occasionally need it.
      (:cache . "yes")
      (:noweb . "yes")
      (:hlines . "no")
-     (:async . "yes")
      (:mkdirp . "yes")
      (:tangle . "no"))))
 #+end_src
@@ -1189,7 +1188,11 @@ I don't use this that often but it is convenient when I occasionally need it.
    org-hide-emphasis-markers t
    org-pretty-entities t)
   (custom-set-faces!
-    '(org-document-title :weight extra-bold :height 1.3)
+    '(org-document-title :weight extra-bold :height 2.0)
+    '(org-level-1 :weight extra-bold :height 1.15)
+    '(org-level-2 :weight bold :height 1.10)
+    '(org-level-3 :weight semi-bold :height 1.08)
+    '(org-level-4 :weight semi-bold :height 1.05)
     '(outline-1 :weight extra-bold :height 1.25)
     '(outline-2 :weight bold :height 1.15)
     '(outline-3 :weight bold :height 1.12)
@@ -1241,14 +1244,21 @@ I don't use this that often but it is convenient when I occasionally need it.
 (after! org-roam
   (add-to-list 'org-roam-capture-templates
                '("r" "Templates for religious meditations"))
+
+  (add-to-list 'org-roam-capture-templates
+               '("rl" "Lesson" plain "#+filetags: lesson \"Topic: ${topic}\"\n* %?"
+                 :if-new (file+head "religious/lessons/%<%Y%m%d%H%M%S>-${slug}.org"
+                                    "#+title: ${title}\n\n")
+                 :unnarrowed t))
+
   (add-to-list
    'org-roam-capture-templates
-   '("rs" "Saint" plain "#+filetags: \"Saint Type: ${saint type}\" \"Years: ${birth year}-${death year}\" \"Country: ${country}\" \"City: ${city}\"\n\n* Birth\n%?\n\n* Life\n\n\n* Death\n\n\n* Related saints\n\n"
+   '("rs" "Saint" plain "#+filetags: saint \"Saint Type: ${saint type}\" \"Years: ${birth year}-${death year}\" \"Country: ${country}\" \"City: ${city}\"\n\n* Birth\n%?\n\n* Life\n\n\n* Death\n\n\n* Related saints\n\n"
      :if-new (file+head "religious/saints/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
      :unnarrowed t))
   (add-to-list
    'org-roam-capture-templates
-   '("rb" "Bible Study" plain "#+filetags: \"Book: ${book}\" \"Topic: ${topic}\"\n\n* Topic\n\n* Related\n** Passages\n\n** Meditations\n\n* Personal Meditation\n\n"
+   '("rb" "Bible Study" plain "#+filetags: \"bible study\" \"Book: ${book}\" \"Topic: ${topic}\"\n\n* Topic\n\n* Related\n** Passages\n\n** Meditations\n\n* Personal Meditation\n\n"
      :if-new (file+head "religious/bible-study/%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n")
      :unnarrowed t)))
 #+end_src
@@ -1268,19 +1278,6 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
               :desc "enable xenops" "SPC x" #'xenops-mode)
   :config (setq xenops-math-image-current-scale-factor 2.0))
 #+end_src
-*** Org-appear
-#+begin_src emacs-lisp :tangle packages.el
-(package! org-appear)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! org-appear
-  :commands (org-appear-mode)
-  :config (setq
-           org-appear-autolinks t
-           org-appear-autoentities t
-           org-appear-autosubmarkers t ))
-#+end_src
 *** Org-auto-tangle
 #+begin_src emacs-lisp :tangle packages.el
 (package! org-auto-tangle)
@@ -1292,6 +1289,10 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
   :config (setq org-auto-tangle-default t))
 #+end_src
 *** =ox-latex=
+#+begin_src emacs-lisp
+(after! ox-latex
+  (add-to-list 'org-latex-logfiles-extensions "tex"))
+#+end_src
 **** Syntax highlighting
 #+begin_src emacs-lisp :tangle packages.el
 (package! engrave-faces
@@ -1342,7 +1343,10 @@ Occasionally I want to export a file that looks like emacs. This is mostly done 
 #+end_src
 #+begin_src emacs-lisp
 (use-package! ox-chameleon
-  :after ox)
+  :after ox
+  :config
+  (add-to-list 'org-latex-packages-alist '("" "scrextend" nil))
+  (add-to-list 'org-latex-packages-alist '("" "xcolor" nil)))
 #+end_src
 **** Classes
 #+begin_src emacs-lisp
@@ -1398,18 +1402,24 @@ Occasionally I want to export a file that looks like emacs. This is mostly done 
 *** Lilypond
 Lilypond is useful for writing some sheet music which I occasionally do in emacs; mostly in org documents and mostly on my mac.
 
-#+begin_src emacs-lisp :tangle packages.el
-(if IS-MAC
-    (package! lilypond-mode
-      :recipe (:local-repo "/opt/homebrew/share/emacs/site-lisp/lilypond/")))
-#+end_src
 #+begin_src emacs-lisp
 (use-package! lilypond-mode
-  :commands LilyPond-mode
+  ;; :commands LilyPond-mode
   :init (defalias 'lilypond-mode 'LilyPond-mode)
   :config
   (if IS-MAC
-      (setq org-babel-lilypond-commands '("/opt/homebrew/bin/lilypond" "open" "open"))))
+      (setq org-babel-lilypond-commands '("lilypond" "open" "open"))))
+#+end_src
+*** Resume and CV
+#+begin_src emacs-lisp :tangle packages.el
+(package! org-cv
+  :recipe (:host github :repo "Titan-C/org-cv"))
+;; (package! ox-moderncv)
+;; (package! ox-altaCV)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! ox-hugocv
+  :after ox)
 #+end_src
 * Footers
 
