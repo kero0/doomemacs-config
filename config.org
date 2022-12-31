@@ -189,7 +189,6 @@ I don't need any of these, and so I have these disabled.
 ;;helm
 ;;ido
 (ivy
- +fuzzy
  +icons
  +prescient)
 ;; (vertico
@@ -309,7 +308,7 @@ liked so far.
 eshell
 ;;shell
 ;;term
-;;vterm
+vterm
 #+end_src
 
 ** Checkers
@@ -357,7 +356,7 @@ These are just other tools that I have disabled.
 
 #+begin_src emacs-lisp :tangle init.el
 ;;ansible
-;;direnv
+direnv
 ;;docker
 ;;ein
 ;;editorconfig      ; let someone else argue about tabs vs spaces
