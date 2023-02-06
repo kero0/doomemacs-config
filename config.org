@@ -1410,17 +1410,6 @@ Lilypond is useful for writing some sheet music which I occasionally do in emacs
   (if IS-MAC
       (setq org-babel-lilypond-commands '("lilypond" "open" "open"))))
 #+end_src
-*** Resume and CV
-#+begin_src emacs-lisp :tangle packages.el
-(package! org-cv
-  :recipe (:host github :repo "Titan-C/org-cv"))
-;; (package! ox-moderncv)
-;; (package! ox-altaCV)
-#+end_src
-#+begin_src emacs-lisp
-(use-package! ox-hugocv
-  :after ox)
-#+end_src
 * Footers
 
 #+begin_src emacs-lisp
