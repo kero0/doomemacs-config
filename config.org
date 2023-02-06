@@ -342,7 +342,7 @@ gist
  +dictionary
  +offline)
 (lsp
- +eglot)
+ +peek)
 magit
 make
 (pass
@@ -826,16 +826,20 @@ Setting fonts and some emojis.
 ;; (when (and (modulep! :tools lsp +eglot) (modulep! :checkers syntax))
 ;;   (delq! 'eglot flycheck-checkers))
 
-(when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
-  (setq
-   lsp-completion-enable t
-   lsp-enable-snippet t
-   lsp-enable-folding t
-   lsp-enable-indentation t
-   lsp-enable-file-watchers t
-   lsp-enable-on-type-formatting t
-   lsp-enable-relative-indentation t
-   lsp-enable-semantic-highlighting t))
+(after! lsp
+  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+    (setq
+     gc-cons-threshold (* 100 1000 1000) ;; 100mb
+     read-process-output-max (* 3 1024 1024) ;; 3mb
+
+     lsp-completion-enable t
+     lsp-enable-snippet t
+     lsp-enable-folding t
+     lsp-enable-indentation t
+     lsp-enable-file-watchers t
+     lsp-enable-on-type-formatting t
+     lsp-enable-relative-indentation t
+     lsp-enable-semantic-highlighting t)))
 #+end_src
 
 *** Rust
