@@ -335,6 +335,7 @@ These are part of the reason I use /emacs/.
 (debugger
  +lsp)
 biblio
+direnv
 (eval
  +overlay)
 gist
@@ -356,7 +357,6 @@ These are just other tools that I have disabled.
 
 #+begin_src emacs-lisp :tangle init.el
 ;;ansible
-direnv
 ;;docker
 ;;ein
 ;;editorconfig      ; let someone else argue about tabs vs spaces
