@@ -188,11 +188,11 @@ I don't need any of these, and so I have these disabled.
  +childframe)
 ;;helm
 ;;ido
-(ivy
- +icons
- +prescient)
-;; (vertico
-;;  +icons)
+;; (ivy
+;;  +icons
+;;  +prescient)
+(vertico
+ +icons)
 #+end_src
 
 ** UI
@@ -207,16 +207,9 @@ it the same here.
 #+begin_src emacs-lisp :tangle init.el
 doom
 doom-dashboard
-#+end_src
-
-Emojis and unicode are nice since sometimes I open files with emojis or
-unicode or both in them.
-
-#+begin_src emacs-lisp :tangle init.el
 (emoji
  +unicode
  +github)
-unicode
 #+end_src
 
 These all in some way or another make code easier for me to read or make
@@ -224,13 +217,11 @@ the UI of emacs display some information that I like.
 
 #+begin_src emacs-lisp :tangle init.el
 hl-todo             ; highlight TODO/FIXME/NOTE, etc.
-indent-guides       ; highlights indent columns
 (ligatures
  +extra)
 (modeline
  +light)
 nav-flash           ; blink cursor line after big motions
-ophints
 (popup
  +all
  +defaults)
@@ -253,10 +244,13 @@ For some reason or another I don't have each of these enabled.
 #+begin_src emacs-lisp :tangle init.el
 ;;doom-quit
 ;;hydra
+;;indent-guides     ; highlights indent columns
 ;;minimap           ; show a map of the code on the side
 ;;neotree           ; a project drawer, like NERDTree for vim
+;;ophints
 ;;tabs
 ;;treemacs
+;;unicode
 ;;vi-tilde-fringe
 ;;window-select     ; visually switch windows
 #+end_src
@@ -276,7 +270,7 @@ fold                ; (nigh) universal code folding
 multiple-cursors    ; editing in many places at once
 ;;objed             ; text object editing for the innocent
 ;;parinfer          ; turn emacs-lisp into python, sort of
-;;rotate-text       ; cycle region at point between text candidates
+rotate-text         ; cycle region at point between text candidates
 snippets            ; my elves. They type so I don't have to
 word-wrap           ; soft wrapping with language-aware indent
 #+end_src
@@ -396,7 +390,7 @@ overall. I very often come here and enable or disable a language.
 ;;coq               ; proofs-as-programs
 ;;crystal           ; ruby at the speed of c
 ;;csharp            ; unity, .NET, and mono shenanigans
-;;data              ; config/data formats
+data              ; config/data formats
 ;; (dart
 ;;  +flutter
 ;;  +lsp)           ; paint ui and not much else
@@ -436,9 +430,9 @@ markdown            ; writing docs for people to ignore
  +hugo
  +journal
  +noter
- +org-bullets
+ +pandoc
+ +passwords
  +present
- +pretty
  +roam2)            ; organize your plain life in plain text
 ;;php               ; perl's insecure younger brother
 ;;plantuml          ; diagrams for confusing people more
@@ -455,7 +449,8 @@ markdown            ; writing docs for people to ignore
 ;;rst               ; ReST in peace
 ;;(ruby +rails)     ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
 (rust
- +lsp)              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+ +lsp
+ +tree-sitter)      ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
 ;;scala             ; java, but good
 ;;(scheme +guile)   ; a fully conniving family of emacs-lisps
 (sh                 ; she sells {ba,z,fi}sh shells on the C xor
@@ -524,12 +519,21 @@ literate
 (after! (doom-packages straight)
   (setq straight--native-comp-available t))
 #+end_src
-** Load NixOS site-lisp
+*** =transient= and =with-editor=
+#+begin_src emacs-lisp :tangle packages.el
+(package! transient :pin "c2bdf7e12c530eb85476d3aef317eb2941ab9440")
+(package! with-editor :pin "391e76a256aeec6b9e4cbd733088f30c677d965b")
+#+end_src
+** NixOS and nix-darwin setup
+- Load NixOS site-lisp.
+- Have =pdf-tools= use =nix-shell= to build its server.
 
 #+begin_src emacs-lisp
 (when-let ((site-start (locate-library "site-start.el")))
   (load site-start)
-  (message "Loaded %s" site-start))
+  (message "Loaded %s" site-start)
+  (when (modulep! :tools pdf)
+      (setq pdf-tools-installer-os "nixos")))
 #+end_src
 ** My personal info
 #+begin_src emacs-lisp
@@ -546,6 +550,12 @@ This loads up my personal yasnipptes and adds them to the ones provided by doom.
     (yas-load-directory my/snippets-dir t)))
 #+end_src
 ** Keybindings
+*** Clipboard
+Same as vim, unnamed register applies only to this application (Emacs). "+" register applies to the system clipboard.
+#+begin_src emacs-lisp
+(after! evil-collection
+  (setq select-enable-clipboard nil))
+#+end_src
 *** Keybindings for my mac.
 #+begin_src emacs-lisp
 (cond (IS-MAC
@@ -561,20 +571,38 @@ As much as I like /"M-x"/ to type commands, I think /"SPC ;"/ is sometimes easie
       (:desc "M-x" ";" #'execute-extended-command)
       (:desc "eval-expression" ":" #'pp-eval-expression))
 #+end_src
-*** =shell-command=
+*** Swap compile and recompile
+It makes more sense to me to have =c c= for recompile and =c C= for compile since I recompile more often than I compile.
 #+begin_src emacs-lisp
 (map! :leader
-      (:desc "Run a shell command" "r" #'shell-command))
+      (:desc "Reompile" "c c" #'recompile)
+      (:desc "Compile" "c C" #'compile))
 #+end_src
 *** =toggle-debug-on-error=
 #+begin_src emacs-lisp
+(defvar my/debug-on-error nil)
+(defun my/toggle-debug-on-error ()
+  "Toggle debug-on-error."
+  (interactive)
+  (setq my/debug-on-error (not my/debug-on-error))
+  (setq debug-on-error my/debug-on-error)
+  (setq async-debug my/debug-on-error)
+  (setq org-export-async-debug my/debug-on-error)
+  (message "debug-on-error is %s" my/debug-on-error))
+
+
 (map! :leader
-      (:desc "Debug on error" "t d" #'toggle-debug-on-error))
+      (:desc "Debug on error" "t d" #'my/toggle-debug-on-error))
 #+end_src
 *** Pass
 #+begin_src emacs-lisp
 (map! :leader
       (:desc "Pass" "o p" #'pass))
+#+end_src
+*** (Un)comment lines
+#+begin_src emacs-lisp
+(map! :leader
+       (:desc "Comment/uncomment lines" "t /" #'comment-line))
 #+end_src
 ** Shell
 #+begin_src emacs-lisp
@@ -624,10 +652,43 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (setq global-auto-revert-non-file-buffers t)
 #+end_src
 
-** (Un)comment lines
+** =age.el=
+#+begin_src emacs-lisp :tangle packages.el
+(package! age)
+#+end_src
+
 #+begin_src emacs-lisp
-(map! :leader
-       (:desc "Comment/uncomment lines" "t /" #'comment-line))
+(defun my/age-github-keys-for (username)
+  "Turn GitHub USERNAME into a list of ssh public keys."
+  (let* ((res (shell-command-to-string
+               (format "curl -s https://api.github.com/users/%s/keys"
+                       (shell-quote-argument username))))
+         (json (json-parse-string res :object-type 'alist)))
+    (cl-assert (arrayp json))
+    (cl-loop for alist across json
+             for key = (cdr (assoc 'key alist))
+             when (and (stringp key)
+                       (string-match-p "^\\(ssh-rsa\\|ssh-ed25519\\) AAAA" key))
+             collect key)))
+
+(defun my/age-save-with-github-recipient (username)
+  "Encrypt an age file to the public keys of GitHub USERNAME."
+  (interactive "MGitHub username: ")
+  (cl-letf (((symbol-value 'age-default-recipient)
+             (append (if (listp age-default-recipient)
+                         age-default-recipient
+                       (list age-default-recipient))
+                     (my/age-github-keys-for username))))
+    (save-buffer)))
+
+(my/age-github-keys-for "kero0")
+
+
+(use-package! age
+  :mode "\\.age\\'"
+  :init (age-file-enable)
+  :config (setq age-default-identity "~/.ssh/id_ed25519.pub"
+                age-encrypt-to '(my/age-github-keys-for "kero0")))
 #+end_src
 ** Auto save my files
 #+begin_src emacs-lisp
@@ -663,10 +724,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 (setq
  modus-themes-italic-constructs t
  modus-themes-bold-constructs t
- modus-themes-mixed-fonts t
  modus-themes-subtle-line-numbers nil
- modus-themes-intense-mouseovers t
- modus-themes-deuteranopia nil
  modus-themes-tabs-accented t
  modus-themes-variable-pitch-ui t
  modus-themes-inhibit-reload t ; only applies to `customize-set-variable' and related
@@ -686,11 +744,6 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
  ;; the text relative to the base font size (or a cons cell of
  ;; height and FLOAT)
  modus-themes-mode-line '(borderless accented)
-
- ;; Options for `modus-themes-markup' are either nil, or a list
- ;; that can combine any of `bold', `italic', `background',
- ;; `intense'.
- modus-themes-markup '(bold background intense)
 
  ;; Options for `modus-themes-syntax' are either nil (the default),
  ;; or a list of properties that may include any of those symbols:
@@ -712,14 +765,6 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
  ;; `neutral-underline' OR `no-underline', `faint' OR `no-color',
  ;; `bold', `italic', `background'
  modus-themes-links '(neutral-underline italic)
-
- ;; Options for `modus-themes-box-buttons' are either nil (the
- ;; default), or a list that can combine any of `flat',
- ;; `accented', `faint', `variable-pitch', `underline',
- ;; `all-buttons', the symbol of any font weight as listed in
- ;; `modus-themes-weights', and a floating point number
- ;; (e.g. 0.9) for the height of the button's text.
- modus-themes-box-buttons nil
 
  ;; Options for `modus-themes-prompts' are either nil (the
  ;; default), or a list of properties that may include any of those
@@ -754,7 +799,7 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
  ;; Options for `modus-themes-diffs': nil, 'desaturated, 'bg-only
  modus-themes-diffs nil
 
- modus-themes-org-blocks 'gray-background ; {nil,'gray-background,'tinted-background}
+ modus-themes-org-blocks 'tinted-background ; {nil,'gray-background,'tinted-background}
 
  modus-themes-org-agenda ; this is an alist: read the manual or its doc string
  '((header-block . (variable-pitch light 1.6))
@@ -837,29 +882,24 @@ Setting fonts and some emojis.
      lsp-enable-folding t
      lsp-enable-indentation t
      lsp-enable-file-watchers t
-     lsp-enable-on-type-formatting t
+     lsp-enable-on-type-formatting nil
      lsp-enable-relative-indentation t
-     lsp-enable-semantic-highlighting t)))
+     lsp-enable-semantic-highlighting nil)))
 #+end_src
 
 *** Rust
 #+begin_src emacs-lisp
 (after! rustic
-
   (map! :map rustic-mode-map
         :localleader
         (:desc "Cargo run" "r" #'lsp-rust-analyzer-run)
         (:desc "Expand macro" "m" #'lsp-rust-analyzer-expand-macro))
-  (setq lsp-rust-all-features t)
-  (setq lsp-rust-analyzer-display-chaining-hints t)
-  (setq lsp-rust-analyzer-display-parameter-hints t)
-  (setq lsp-rust-analyzer-server-display-inlay-hints t)
-  (setq lsp-rust-analyzer-display-lifetime-elision-hints-enable "always")
-  ;; (setq lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (setq lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t)
-  (setq lsp-rust-analyzer-display-closure-return-type-hints t)
-  (setq lsp-rust-analyzer-display-reborrow-hints t)
-  )
+  (setq lsp-rust-analyzer-display-chaining-hints t
+        lsp-rust-analyzer-display-parameter-hints t
+        lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial"
+        lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names t
+        lsp-rust-analyzer-display-closure-return-type-hints t
+        lsp-rust-analyzer-display-reborrow-hints t))
 #+end_src
 
 *** LSP in org-mode code blocks
@@ -895,6 +935,32 @@ Copied from tecosaur's config.
   (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 ** DAP
+*** Rust
+#+begin_src emacs-lisp
+(after! lsp-rust
+  (setq lsp-rust-analyzer-debug-lens-extra-dap-args
+        `(:MIMode "lldb"
+          :miDebuggerPath ,(f-join doom-local-dir "etc/dap-extension/vscode/cpptools/extension/debugAdapters/lldb-mi/bin/lldb-mi")
+          :stopAtEntry t
+          :externalConsole
+          :json-false)))
+;; (after! dap-cpptools
+;;   (dap-register-debug-template "Rust::CppTools Run Configuration"
+;;                                `(:type "cppdbg"
+;;                                  :request "launch"
+;;                                  :name "Rust::Run ${workspaceFolderBasename}"
+;;                                  :MIMode "lldb"
+;;                                  :miDebuggerPath ,(f-join doom-local-dir "etc/dap-extension/vscode/cpptools/extension/debugAdapters/lldb-mi/bin/lldb-mi")
+;;                                  :environment []
+;;                                  :program "${workspaceFolder}/target/debug/${workspaceRootFolderBasename}"
+;;                                  :args []
+;;                                  :cwd "${workspaceFolder}"
+;;                                  :console "external"
+;;                                  :dap-compilation "cargo build"
+;;                                  :dap-compilation-dir "${workspaceFolder}")))
+
+#+end_src
+*** Keybindings
 Trying out DAP for my debugger
 #+begin_src emacs-lisp
 (after! dap-mode
@@ -910,12 +976,13 @@ Trying out DAP for my debugger
       :desc "dap continue"      "c" #'dap-continue
       :desc "dap hydra"         "h" #'dap-hydra
       :desc "dap debug restart" "r" #'dap-debug-restart
-      :desc "dap debug"         "s" #'dap-debug
+      :desc "dap quit"          "q" #'+debugger/quit
 
       ;; debug
       :prefix ("dd" . "Debug")
       :desc "dap debug recent"  "r" #'dap-debug-recent
       :desc "dap debug last"    "l" #'dap-debug-last
+      :desc "dap debug"         "s" #'dap-debug
 
       ;; eval
       :prefix ("de" . "Eval")
@@ -1063,9 +1130,8 @@ mu index
 (use-package! lice
   :commands lice)
 (map!
- :leader :prefix ("i l" . "license")
- :desc "Insert header" "l" #'lice
- :desc "Insert file" "f" #'+file-templates/insert-license)
+ :leader
+ :desc "Insert license" "i l" #'lice)
 #+end_src
 ** =string-inflection=
 I don't use this that often but it is convenient when I occasionally need it.
@@ -1111,15 +1177,11 @@ I don't use this that often but it is convenient when I occasionally need it.
 #+begin_src emacs-lisp
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
-  :hook (text-mode . copilot-mode)
-  :config (map! (:when (modulep! :completion company)
-                  :i
-                  "M-<tab>"  #'copilot-accept-completion-by-word
-                  :map copilot-completion-map
-                  "<tab>"  #'copilot-accept-completion
-                  "C-<tab>" #'copilot-next-completion
-                  "C-S-<tab>" #'copilot-previous-completion
-                  "M-<tab>" #'copilot-complete)))
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+end_src
 ** =envrc=
 #+begin_src emacs-lisp :tangle packages.el
@@ -1190,21 +1252,21 @@ I don't use this that often but it is convenient when I occasionally need it.
 
    org-ellipsis "↷"
    org-hide-emphasis-markers t
-   org-pretty-entities t)
-  (custom-set-faces!
-    '(org-document-title :weight extra-bold :height 2.0)
-    '(org-level-1 :weight extra-bold :height 1.15)
-    '(org-level-2 :weight bold :height 1.10)
-    '(org-level-3 :weight semi-bold :height 1.08)
-    '(org-level-4 :weight semi-bold :height 1.05)
-    '(outline-1 :weight extra-bold :height 1.25)
-    '(outline-2 :weight bold :height 1.15)
-    '(outline-3 :weight bold :height 1.12)
-    '(outline-4 :weight semi-bold :height 1.09)
-    '(outline-5 :weight semi-bold :height 1.06)
-    '(outline-6 :weight semi-bold :height 1.03)
-    '(outline-8 :weight semi-bold)
-    '(outline-9 :weight semi-bold)))
+   org-pretty-entities t))
+  ;; (custom-set-faces!
+  ;;   ;; '(org-document-title :weight extra-bold :height 2.0)
+  ;;   '(org-level-1 :weight extra-bold :height 1.15)
+  ;;   '(org-level-2 :weight bold :height 1.10)
+  ;;   '(org-level-3 :weight semi-bold :height 1.08)
+  ;;   '(org-level-4 :weight semi-bold :height 1.05)
+  ;;   '(outline-1 :weight extra-bold :height 1.25)
+  ;;   '(outline-2 :weight bold :height 1.15)
+  ;;   '(outline-3 :weight bold :height 1.12)
+  ;;   '(outline-4 :weight semi-bold :height 1.09)
+  ;;   '(outline-5 :weight semi-bold :height 1.06)
+  ;;   '(outline-6 :weight semi-bold :height 1.03)
+  ;;   '(outline-8 :weight semi-bold)
+  ;;   '(outline-9 :weight semi-bold)))
 #+end_src
 **** =org-agenda=
 #+begin_src emacs-lisp
@@ -1230,7 +1292,7 @@ I don't use this that often but it is convenient when I occasionally need it.
   :init (setq
          org-modern-variable-pitch t
          org-modern-timestamp t
-         org-modern-table t
+         org-modern-table nil
          org-modern-table-vertical 2
          org-modern-table-horizontal 1.2
          org-modern-star '("⦿" "⦾" "◉" "○" "◈" "◇" "‣" "⁍")))
@@ -1290,7 +1352,8 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
 #+begin_src emacs-lisp
 (use-package! org-auto-tangle
   :hook (org-mode . org-auto-tangle-mode)
-  :config (setq org-auto-tangle-default t))
+  :config
+  (setq org-auto-tangle-default t))
 #+end_src
 *** =ox-latex=
 #+begin_src emacs-lisp
