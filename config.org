@@ -541,6 +541,17 @@ literate
       user-mail-address "kbakheat@gmail.com")
 #+end_src
 
+** Undo
+#+begin_src emacs-lisp
+(after! undo-tree
+  (map! :leader
+        "o U" nil
+        :desc "Undo tree" "o u" #'undo-tree-visualize)
+  (setq undo-tree-auto-save-history t
+        undo-tree-history-directory-alist
+        undo-tree-visualizer-diff t
+        undo-tree-visualizer-timestamps t))
+#+end_src
 ** Add my snippets
 This loads up my personal yasnipptes and adds them to the ones provided by doom.
 #+begin_src emacs-lisp
