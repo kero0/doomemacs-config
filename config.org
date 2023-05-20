@@ -545,9 +545,9 @@ literate
 This loads up my personal yasnipptes and adds them to the ones provided by doom.
 #+begin_src emacs-lisp
 (defvar my/snippets-dir (expand-file-name "snippets/" doom-user-dir))
-(eval-after-load 'yasnippet
-  (lambda () (add-to-list 'yas-snippet-dirs 'my/snippets-dir)
-    (yas-load-directory my/snippets-dir t)))
+(after! yasnippet
+  (add-to-list 'yas-snippet-dirs 'my/snippets-dir)
+    (yas-load-directory my/snippets-dir t))
 #+end_src
 ** Keybindings
 *** Clipboard
