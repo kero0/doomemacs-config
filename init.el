@@ -94,6 +94,7 @@ word-wrap           ; soft wrapping with language-aware indent
 electric    ; smarter, keyword-based electric-indent
 (ibuffer    ; interactive buffer management
  +icons)
+tramp
 (undo       ; persistent, smarter undo for your inevitable mistakes
  +tree)
 vc          ; version-control and Emacs, sitting in a tree
