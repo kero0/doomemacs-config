@@ -36,6 +36,10 @@
       url = "github:emacs-evil/evil-collection";
       flake = false;
     };
+    consult = {
+      url = "github:minad/consult/994f800a59924ed2683324deab39810fdc760d5d";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ self, nixpkgs, nix-doom-emacs, emacs-overlay, ... }:
@@ -128,6 +132,8 @@
               });
               evil-collection = super.evil-collection.overrideAttrs
                 (_: { src = inputs.evil-collection; });
+              consult =
+                super.consult.overrideAttrs (_: { src = inputs.consult; });
             };
           };
         in pkgs.callPackage nix-doom-emacs doom-emacs;
