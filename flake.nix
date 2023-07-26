@@ -87,7 +87,73 @@
               editorconfig
               elisp-demos
             ]);
-          all-packages = lisp-packages ++ (import ./dependencies pkgs);
+          all-packages = (with pkgs;
+            [
+              ## basic dependencies
+              emacs-all-the-icons-fonts
+              bashInteractive
+              binutils
+              curlFull
+              fd
+              gitFull
+              gnutls
+              imagemagick
+              pinentry-emacs
+              (ripgrep.override { withPCRE2 = true; })
+              wget
+              zstd.bin
+              zstd
+
+              ## modules
+              ### make
+              gnumake
+
+              ### lsp & copilot if it's enabled
+              nodejs
+
+              ### debugger
+              lldb
+
+              ### nix
+              nixfmt
+              nixUnstable
+
+              ### org+roam and lookup
+              sqlite
+              wordnet
+
+              ### ox-latex
+              (with texlive;
+                texlive.combine {
+                  inherit scheme-small biblatex latexmk;
+                  inherit capt-of siunitx wrapfig xcolor;
+                })
+
+              ### org+...
+              graphviz
+              xclip
+
+              ### python
+              (python3.withPackages
+                (ps: with ps; [ black isort pip virtualenv ]))
+
+              ### sh
+              shellcheck
+              shfmt
+
+              ### spell
+              (aspellWithDicts
+                (dicts: with dicts; [ en en-computers en-science ]))
+
+              ### rust
+              cargo
+              rustc
+              rustfmt
+              rust-analyzer
+            ] ++ (if pkgs.stdenv.isDarwin then
+              [ coreutils-prefixed ]
+            else
+              [ gdb ]));
           doom-emacs = rec {
             doomPrivateDir = ./.;
             doomPackageDir = pkgs.linkFarm "doom-package-dir" [
@@ -144,12 +210,6 @@
           packages.${system}.default =
             (doom-emacs system pkgs).overrideAttrs (old: { pname = "emacs"; });
           overlay = self: super: { emacs = packages.${self.system}.default; };
-          test.${system} = {
-            system = system;
-            pkgs = pkgs;
-            # emacs = doom-emacs system pkgs;
-            packages = import ./dependencies pkgs;
-          };
         };
     in nixpkgs.lib.foldr nixpkgs.lib.recursiveUpdate { } (map f systems);
 }
