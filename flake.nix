@@ -144,6 +144,12 @@
           packages.${system}.default =
             (doom-emacs system pkgs).overrideAttrs (old: { pname = "emacs"; });
           overlay = self: super: { emacs = packages.${self.system}.default; };
+          test.${system} = {
+            system = system;
+            pkgs = pkgs;
+            # emacs = doom-emacs system pkgs;
+            packages = import ./dependencies pkgs;
+          };
         };
     in nixpkgs.lib.foldr nixpkgs.lib.recursiveUpdate { } (map f systems);
 }
