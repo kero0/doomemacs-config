@@ -475,12 +475,11 @@ yaml                ; JSON, but readable
 ;;(wanderlust +gmail)
 #+end_src
 ** App
-
 #+begin_src emacs-lisp :tangle init.el
 :app
 ;;calendar
 ;;emms
-everywhere          ; *leave* Emacs!? You must be joking
+;;everywhere        ; *leave* Emacs!? You must be joking
 ;;irc               ; how neckbeards socialize
 ;;(rss +org)        ; emacs as an RSS reader
 ;;twitter           ; twitter client https://twitter.com/vnought
