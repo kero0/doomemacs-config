@@ -1,22 +1,5 @@
 {
   "nodes": {
-    "consult": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1677285324,
-        "narHash": "sha256-b5zs8v4PODEF6Dqkyfc6ok6UtejyZF7Uynf3AsMFZnM=",
-        "owner": "minad",
-        "repo": "consult",
-        "rev": "994f800a59924ed2683324deab39810fdc760d5d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "minad",
-        "repo": "consult",
-        "rev": "994f800a59924ed2683324deab39810fdc760d5d",
-        "type": "github"
-      }
-    },
     "copilot": {
       "flake": false,
       "locked": {
@@ -461,7 +444,6 @@
     },
     "root": {
       "inputs": {
-        "consult": "consult",
         "copilot": "copilot",
         "emacs-overlay": "emacs-overlay",
         "evil-collection": "evil-collection",
