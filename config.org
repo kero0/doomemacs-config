@@ -547,7 +547,6 @@ literate
         "o U" nil
         :desc "Undo tree" "o u" #'undo-tree-visualize)
   (setq undo-tree-auto-save-history t
-        undo-tree-history-directory-alist
         undo-tree-visualizer-diff t
         undo-tree-visualizer-timestamps t))
 #+end_src
