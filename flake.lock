@@ -19,11 +19,11 @@
     "doom-emacs": {
       "flake": false,
       "locked": {
-        "lastModified": 1681326563,
-        "narHash": "sha256-Xhhcuwf4wIuEdSN+v09npcGwWdsW0vC12QAHePWULP0=",
+        "lastModified": 1662497747,
+        "narHash": "sha256-4n7E1fqda7cn5/F2jTkOnKw1juG6XMS/FI9gqODL3aU=",
         "owner": "doomemacs",
         "repo": "doomemacs",
-        "rev": "042fe0c43831c8575abfdec4196ebd7305fa16ac",
+        "rev": "3853dff5e11655e858d0bfae64b70cb12ef685ac",
         "type": "github"
       },
       "original": {
@@ -85,22 +85,6 @@
       "original": {
         "owner": "hlissner",
         "repo": "emacs-so-long",
-        "type": "github"
-      }
-    },
-    "evil-collection": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1683000578,
-        "narHash": "sha256-k9+3S+FUMNZZU1GccP6o1rulPiec9/sPMTbW94nkQhw=",
-        "owner": "emacs-evil",
-        "repo": "evil-collection",
-        "rev": "0df5c4815d7be01ab52e9f957c56e6318c871217",
-        "type": "github"
-      },
-      "original": {
-        "owner": "emacs-evil",
-        "repo": "evil-collection",
         "type": "github"
       }
     },
@@ -301,11 +285,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1684971537,
-        "narHash": "sha256-t531m0NMR/JZg9FQZSLsIoWU8mf4HSPK6Wo8QiH0rdA=",
+        "lastModified": 1684963759,
+        "narHash": "sha256-SBBZa9/U9eaLdYyqEgVxK0GvPoM5V1mvc7+/piDkqqM=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "105037c7cfc60c48c075a0ed2ba49597e0e59bcd",
+        "rev": "b24806fb68b8f81725c201153b79f3cf8db4a020",
         "type": "github"
       },
       "original": {
@@ -349,11 +333,11 @@
     "org": {
       "flake": false,
       "locked": {
-        "lastModified": 1685017285,
-        "narHash": "sha256-8C6TkZYIQT3d0dio7dI4Zb5JfonaIlBuUP7fI73kGf4=",
+        "lastModified": 1683136293,
+        "narHash": "sha256-PMHNr3Qo62uqO5IUDAfxUoqa4Zvb9y2J76pRYDB/6Y4=",
         "owner": "emacs-straight",
         "repo": "org-mode",
-        "rev": "aa3980dd7f41c52a38d08cff2a1b66881786a443",
+        "rev": "080710797ad25e76c4556d2b03cc0aa5313cd187",
         "type": "github"
       },
       "original": {
@@ -446,7 +430,6 @@
       "inputs": {
         "copilot": "copilot",
         "emacs-overlay": "emacs-overlay",
-        "evil-collection": "evil-collection",
         "flake-utils": "flake-utils",
         "nix-doom-emacs": "nix-doom-emacs",
         "nixpkgs": "nixpkgs",

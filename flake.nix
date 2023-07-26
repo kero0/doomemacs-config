@@ -5,15 +5,9 @@
     flake-utils.url = "github:numtide/flake-utils";
     nix-doom-emacs = {
       url = "github:nix-community/nix-doom-emacs";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        emacs-overlay.follows = "emacs-overlay";
-        flake-utils.follows = "flake-utils";
-        doom-emacs.url = "github:doomemacs/doomemacs";
-        org.url = "github:emacs-straight/org-mode";
-        org-contrib.url = "github:emacsmirror/org-contrib";
-        evil-org-mode.url = "github:hlissner/evil-org-mode";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.emacs-overlay.follows = "emacs-overlay";
+      inputs.flake-utils.follows = "flake-utils";
     };
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
@@ -28,12 +22,6 @@
     };
     ox-chameleon = {
       url = "github:tecosaur/ox-chameleon";
-      flake = false;
-    };
-
-    # just temporary
-    evil-collection = {
-      url = "github:emacs-evil/evil-collection";
       flake = false;
     };
   };
@@ -87,7 +75,7 @@
               editorconfig
               elisp-demos
             ]);
-          all-packages = (with pkgs;
+          all-packages = lisp-packages ++ (with pkgs;
             [
               ## basic dependencies
               emacs-all-the-icons-fonts
@@ -95,13 +83,12 @@
               binutils
               curlFull
               fd
-              gitFull
+              gitFull # handled by programs.git
               gnutls
               imagemagick
               pinentry-emacs
               (ripgrep.override { withPCRE2 = true; })
               wget
-              zstd.bin
               zstd
 
               ## modules
@@ -154,29 +141,25 @@
               [ coreutils-prefixed ]
             else
               [ gdb ]));
-          doom-emacs = rec {
-            doomPrivateDir = ./.;
-            doomPackageDir = pkgs.linkFarm "doom-package-dir" [
-              {
-                name = "config.el";
-                path = pkgs.emptyFile;
-              }
-              {
-                name = "init.el";
-                path = "${doomPrivateDir}/init.el";
-              }
-              {
-                name = "packages.el";
-                path = "${doomPrivateDir}/packages.el";
-              }
-            ];
-            # load PATH in extra config
-            extraConfig = ''
-              (setenv "PATH" (concat (getenv "PATH") ":${
-                nixpkgs.lib.makeBinPath all-packages
-              }"))
-            '' + nixpkgs.lib.concatStringsSep "\n"
-              (map (s: ''(add-to-list 'exec-path "${s}/bin")'') all-packages);
+          doom-emacs = nix-doom-emacs.packages.${system}.default.override rec {
+            doomPrivateDir = pkgs.runCommand "doomPrivateDir" { } ''
+              mkdir -p $out
+              cp -r ${./.}/. $out
+              cd $out
+
+              ${emacs}/bin/emacs --batch -Q \
+                --visit config.org \
+                --eval "(require 'org)" \
+                --funcall org-babel-tangle \
+                --kill
+            '';
+            doomPackageDir = pkgs.runCommand "doomPackageDir" { } ''
+              mkdir -p $out
+              cd $out
+              cp -r ${doomPrivateDir}/. $out
+              chmod +w $out/config.el
+              echo "" > $out/config.el
+            '';
             extraPackages = lisp-packages;
             bundledPackages = false;
             emacsPackages = pkgs.emacsPackagesFor emacs;
@@ -192,11 +175,17 @@
                 buildInputs = with self; [ dash editorconfig s ];
                 extraFiles = [ "dist/" ];
               });
-              evil-collection = super.evil-collection.overrideAttrs
-                (_: { src = inputs.evil-collection; });
             };
           };
-        in pkgs.callPackage nix-doom-emacs doom-emacs;
+        in pkgs.symlinkJoin {
+          name = "emacs";
+          paths = [ doom-emacs ];
+          buildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/emacs \
+                --suffix PATH $out/bin:${pkgs.lib.makeBinPath all-packages}
+          '';
+        };
       systems = [ "x86_64-linux" "aarch64-darwin" ];
       f = system:
         let
@@ -211,5 +200,5 @@
             (doom-emacs system pkgs).overrideAttrs (old: { pname = "emacs"; });
           overlay = self: super: { emacs = packages.${self.system}.default; };
         };
-    in nixpkgs.lib.foldr nixpkgs.lib.recursiveUpdate { } (map f systems);
+    in nixpkgs.lib.foldr nixpkgs.lib.mergeAttrs { } (map f systems);
 }
