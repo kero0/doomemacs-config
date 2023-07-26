@@ -1,5 +1,5 @@
 :DOC-CONFIG:
-#+property: header-args:emacs-lisp :tangle config.el
+#+property: header-args :emacs-lisp :tangle config.el
 #+property: header-args :mkdirp yes :comments no :results output silent :noweb yes
 #+startup: fold
 :END:
@@ -7,8 +7,6 @@
 
 This file gets tangled into [[file:config.el]], [[file:init.el]], and
 [[file:packages.el]].
-
-I have recently added a [[flake.nix]] file to this repository, which can be used to run or install emacs with doom emacs and this configuration. I haven't tested all the features yet, but the basics seems to work fine, so I will be using this to install emacs on my machines from now on. You can use this like =nix run github:kero0/doomemacs-config= to run emacs with this configuration, or =nix build github:kero0/doomemacs-config= to build a standalone emacs binary with this configuration. This closure is huge (around 4-5GB) so it will take a while to build.
 
 * References
 This is not a complete list. I have read though many people's configs
@@ -338,7 +336,8 @@ gist
 (lookup
  +dictionary
  +offline)
-lsp
+(lsp
+ +peek)
 magit
 make
 (pass
@@ -536,13 +535,6 @@ literate
   (when (modulep! :tools pdf)
       (setq pdf-tools-installer-os "nixos")))
 #+end_src
-** Increase gc threshold
-#+begin_src emacs-lisp
-(setq
- gc-cons-threshold (* 100 1024 1024) ; 100mb
- gc-cons-percentage 0.6
- read-process-output-max (* 5 1024 1024)) ; 5mb)
-#+end_src
 ** My personal info
 #+begin_src emacs-lisp
 (setq user-full-name "Kirols Bakheat"
@@ -556,6 +548,7 @@ literate
         "o U" nil
         :desc "Undo tree" "o u" #'undo-tree-visualize)
   (setq undo-tree-auto-save-history t
+        undo-tree-history-directory-alist
         undo-tree-visualizer-diff t
         undo-tree-visualizer-timestamps t))
 #+end_src
@@ -858,13 +851,6 @@ Enable =global-auto-revert-mode= in buffers like =dired=.
 #+begin_src emacs-lisp
 (setq doom-theme 'modus-operandi)
 
-(if (and IS-MAC (display-graphic-p) (boundp 'ns-system-appearance-change-functions))
-    (add-hook 'ns-system-appearance-change-functions
-               '(lambda (appearance)
-                  (pcase appearance
-                    ('light (modus-themes-load-operandi))
-                    ('dark (modus-themes-load-vivendi))))))
-
 (map! :leader
       :desc "Modus theme" "t t" #'modus-themes-toggle)
 #+end_src
@@ -893,24 +879,23 @@ Setting fonts and some emojis.
 
 ** LSP
 #+begin_src emacs-lisp
-(when (and (modulep! :tools lsp +eglot) (modulep! :checkers syntax))
-  (delq! 'eglot flycheck-checkers))
+;; (when (and (modulep! :tools lsp +eglot) (modulep! :checkers syntax))
+;;   (delq! 'eglot flycheck-checkers))
 
 (after! lsp
   (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
     (setq
+     gc-cons-threshold (* 100 1000 1000) ;; 100mb
+     read-process-output-max (* 3 1024 1024) ;; 3mb
+
      lsp-completion-enable t
      lsp-enable-snippet t
+     lsp-enable-folding t
      lsp-enable-indentation t
      lsp-enable-file-watchers t
      lsp-enable-on-type-formatting nil
      lsp-enable-relative-indentation t
-     lsp-enable-semantic-highlighting t
-     lsp-lens-enable nil
-     lsp-headerline-breadcrumb-enable nil
-     lsp-eldoc-enable-hover t
-     lsp-signature-auto-activate t
-     lsp-signature-render-documentation t)))
+     lsp-enable-semantic-highlighting nil)))
 #+end_src
 
 *** Rust
@@ -1203,31 +1188,11 @@ I don't use this that often but it is convenient when I occasionally need it.
 #+begin_src emacs-lisp
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
-  :hook (text-mode . copilot-mode)
   :bind (:map copilot-completion-map
-              ("<right>"   . #'copilot-accept-completion)
-              ("C-f"       . #'copilot-accept-completion)
-              ("M-<right>" . #'copilot-accept-completion-by-word)
-              ("M-f"       . #'copilot-accept-completion-by-word)
-              ("C-e"       . #'copilot-accept-completion-by-line)
-              ("<end>"     . #'copilot-accept-completion-by-line)
-              ("M-n"       . #'copilot-next-completion)
-              ("M-p"       . #'copilot-previous-completion))
-  :config
-  ;; Based on function from https://robert.kra.hn/posts/2023-02-22-copilot-emacs-setup/
-  (defun copilot-complete-or-accept ()
-    "Command that either triggers a completion or accepts one if one
-is available."
-    (interactive)
-    (if (copilot--overlay-visible)
-        (progn
-          (copilot-accept-completion))
-      (copilot-complete)))
-  (defun cae-copilot-clear-overlay-h ()
-    "Like `copilot-clear-overlay', but returns `t' if the overlay was visible."
-    (when (copilot--overlay-visible)
-      (copilot-clear-overlay) t))
-  (add-hook! 'doom-escape-hook #'cae-copilot-clear-overlay-h))
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+end_src
 ** =envrc=
 #+begin_src emacs-lisp :tangle packages.el
