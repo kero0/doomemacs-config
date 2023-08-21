@@ -1,5 +1,5 @@
 :DOC-CONFIG:
-#+property: header-args :emacs-lisp :tangle config.el
+#+property: header-args :emacs-lisp :tangle config.el :eval never
 #+property: header-args :mkdirp yes :comments no :results output silent :noweb yes
 #+startup: fold
 :END:
