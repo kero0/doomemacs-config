@@ -425,6 +425,7 @@ markdown            ; writing docs for people to ignore
  +tree-sitter)      ; I hereby declare "nix geht mehr!"
 ;;ocaml             ; an objective camel
 (org
+ +crypt
  +dragndrop
  +gnuplot
  +hugo
@@ -433,6 +434,7 @@ markdown            ; writing docs for people to ignore
  +pandoc
  +passwords
  +present
+ +pretty
  +roam2)            ; organize your plain life in plain text
 ;;php               ; perl's insecure younger brother
 ;;plantuml          ; diagrams for confusing people more
@@ -1225,6 +1227,7 @@ I don't use this that often but it is convenient when I occasionally need it.
   (add-to-list 'org-latex-packages-alist '("" "siunitx"))
   (plist-put org-format-latex-options :scale 1)
   (setq
+   org-hide-leading-stars nil
    org-insert-heading-respect-content nil
    org-export-in-background t
    org-export-with-sub-superscripts '{}
@@ -1272,23 +1275,9 @@ I don't use this that often but it is convenient when I occasionally need it.
    org-fontify-done-headline t
    org-src-fontify-natively t
 
-   org-ellipsis "↷"
+   org-ellipsis " ↷"
    org-hide-emphasis-markers t
    org-pretty-entities t))
-  ;; (custom-set-faces!
-  ;;   ;; '(org-document-title :weight extra-bold :height 2.0)
-  ;;   '(org-level-1 :weight extra-bold :height 1.15)
-  ;;   '(org-level-2 :weight bold :height 1.10)
-  ;;   '(org-level-3 :weight semi-bold :height 1.08)
-  ;;   '(org-level-4 :weight semi-bold :height 1.05)
-  ;;   '(outline-1 :weight extra-bold :height 1.25)
-  ;;   '(outline-2 :weight bold :height 1.15)
-  ;;   '(outline-3 :weight bold :height 1.12)
-  ;;   '(outline-4 :weight semi-bold :height 1.09)
-  ;;   '(outline-5 :weight semi-bold :height 1.06)
-  ;;   '(outline-6 :weight semi-bold :height 1.03)
-  ;;   '(outline-8 :weight semi-bold)
-  ;;   '(outline-9 :weight semi-bold)))
 #+end_src
 **** =org-agenda=
 #+begin_src emacs-lisp
@@ -1302,22 +1291,6 @@ I don't use this that often but it is convenient when I occasionally need it.
      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
    org-agenda-current-time-string
    "⭠ now ─────────────────────────────────────────────────"))
-#+end_src
-**** =org-modern=
-#+begin_src emacs-lisp :tangle packages.el
-(package! org-modern)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! org-modern
-  :hook (org-mode . org-modern-mode)
-  :init (setq
-         org-modern-variable-pitch t
-         org-modern-timestamp t
-         org-modern-table nil
-         org-modern-table-vertical 2
-         org-modern-table-horizontal 1.2
-         org-modern-star '("⦿" "⦾" "◉" "○" "◈" "◇" "‣" "⁍")))
 #+end_src
 *** Roam
 #+begin_src emacs-lisp
@@ -1376,6 +1349,15 @@ doesn't interrupt my typing as bad. I don't like that this messes with other /do
   :hook (org-mode . org-auto-tangle-mode)
   :config
   (setq org-auto-tangle-default t))
+#+end_src
+*** Lilypond
+#+begin_src emacs-lisp
+(use-package! lilypond-mode
+  :commands LilyPond-mode
+  :init (defalias 'lilypond-mode 'LilyPond-mode)
+  :config
+  (if IS-MAC
+      (setq org-babel-lilypond-commands '("lilypond" "open" "open"))))
 #+end_src
 *** =ox-latex=
 #+begin_src emacs-lisp
