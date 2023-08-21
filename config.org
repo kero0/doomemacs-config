@@ -1072,14 +1072,7 @@ mu index
    mu4e-attachment-dir "~/Downloads"
    mu4e-update-interval 300
    mu4e-use-fancy-chars t
-   mu4e-change-filenames-when-moving t
-   mu4e-bookmarks '((:name "Unread messages"      :query (my/mu-filter "flag:unread")     :key ?u)
-                    (:name "Today's messages"     :query (my/mu-filter "date:today..now") :key ?t)
-                    (:name "Last 7 days"          :query (my/mu-filter "date:7d..now")    :key ?w)
-                    (:name "Messages with images" :query (my/mu-filter "mime:image/*")    :key ?i)
-                    (:name "Work emails"          :query "from:/.+@ford.com/"             :key ?k)
-                    (:name "VIP emails"           :query (my/mu-filter-vip my/vip-emails) :key ?v)
-                    (:name "All messages"         :query ""                               :key ?a))))
+   mu4e-change-filenames-when-moving t))
 #+end_src
 *** Per-Account config
 **** Main gmail
