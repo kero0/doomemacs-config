@@ -501,6 +501,15 @@ literate
 #+end_src
 
 * General config
+** ~append!~ macro
+#+begin_src emacs-lisp
+(cl-defmacro append! (var &rest values)
+  "Append VALUES to the end of VAR, if they don't already exist in VAR."
+  (declare (indent defun))
+  `(dolist (value (list ,@values))
+     (unless (member value ,var)
+       (setf ,var (append ,var (list value))))))
+#+end_src
 ** Temporary Fixes
 *** vterm
 #+begin_src emacs-lisp :tangle init.el
@@ -613,6 +622,44 @@ It makes more sense to me to have =c c= for recompile and =c C= for compile sinc
 (map! :leader
        (:desc "Comment/uncomment lines" "t /" #'comment-line))
 #+end_src
+** Evil Bookmarks
+*** Fringes
+#+begin_src emacs-lisp :tangle packages.el
+(package! evil-fringe-mark)
+#+end_src
+#+begin_src emacs-lisp
+(when (modulep! :editor evil)
+  (use-package! evil-fringe-mark
+    :unless noninteractive
+    :after evil
+    :hook (after-init . global-evil-fringe-mark-mode)
+    :commands (evil-fringe-mark-mode)
+    :config (setq evil-fringe-mark-show-special t)
+    :init
+    (map!
+     :leader
+     :desc "Toggle fringe marks" "t`" #'evil-fringe-mark-mode
+     :desc "Show marks" "o`" #'evil-show-marks)))
+#+end_src
+*** Persist marks
+#+begin_src emacs-lisp
+(when (modulep! :editor evil)
+  (after! savehist
+    (add-to-list 'savehist-additional-variables 'evil-markers-alist)
+    (add-hook 'savehist-save-hook (lambda ()
+                                    (kill-local-variable 'evil-markers-alist)
+                                    (dolist (entry evil-markers-alist)
+                                      (when (markerp (cdr entry))
+                                        (setcdr entry (cons (file-truename (buffer-file-name (marker-buffer (cdr entry))))
+                                                            (marker-position (cdr entry))))))))
+    (add-hook 'savehist-mode-hook (lambda ()
+                                    (setq-default evil-markers-alist evil-markers-alist)
+                                    (kill-local-variable 'evil-markers-alist)
+                                    (make-local-variable 'evil-markers-alist))))
+  ;; Persist local marks
+  (append! desktop-locals-to-save evil-markers-alist))
+#+end_src
+
 ** Shell
 #+begin_src emacs-lisp
 (after! vterm
