@@ -164,15 +164,15 @@ like =lexical-binding=, or instructions about the contents of the file.
 
 ** Custom Variables
 #+begin_src emacs-lisp :tangle init.el
-(setq my/is-personal t)
+(setq my/is-personal nil)
 (setq my/is-work (not my/is-personal))
 #+end_src
 #+begin_src emacs-lisp :tangle packages.el
-(setq my/is-personal t)
+(setq my/is-personal nil)
 (setq my/is-work (not my/is-personal))
 #+end_src
 #+begin_src emacs-lisp
-(setq my/is-personal t)
+(setq my/is-personal nil)
 (setq my/is-work (not my/is-personal))
 #+end_src
 * Doom modules config
