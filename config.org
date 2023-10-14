@@ -326,8 +326,10 @@ These are part of the reason I use /emacs/.
 
 #+begin_src emacs-lisp :tangle init.el
 :tools
+(:if IS-LINUX docker)
 (debugger
  +lsp)
+ein
 biblio
 direnv
 (eval
@@ -351,8 +353,6 @@ These are just other tools that I have disabled.
 
 #+begin_src emacs-lisp :tangle init.el
 ;;ansible
-;;docker
-;;ein
 ;;editorconfig      ; let someone else argue about tabs vs spaces
 ;;prodigy           ; FIXME managing external services & code builders
 ;;rgb               ; creating color strings
