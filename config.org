@@ -534,6 +534,11 @@ literate
 (package! transient :pin "c2bdf7e12c530eb85476d3aef317eb2941ab9440")
 (package! with-editor :pin "391e76a256aeec6b9e4cbd733088f30c677d965b")
 #+end_src
+** Evil settings
+#+begin_src emacs-lisp
+(setq evil-collection-setup-minibuffer t
+      evil-want-fine-undo t)
+#+end_src
 ** NixOS and nix-darwin setup
 - Load NixOS site-lisp.
 - Have =pdf-tools= use =nix-shell= to build its server.
