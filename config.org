@@ -162,6 +162,19 @@ like =lexical-binding=, or instructions about the contents of the file.
 ;; they are implemented.
 #+end_src
 
+** Custom Variables
+#+begin_src emacs-lisp :tangle init.el
+(setq my/is-personal t)
+(setq my/is-work (not my/is-personal))
+#+end_src
+#+begin_src emacs-lisp :tangle packages.el
+(setq my/is-personal t)
+(setq my/is-work (not my/is-personal))
+#+end_src
+#+begin_src emacs-lisp
+(setq my/is-personal t)
+(setq my/is-work (not my/is-personal))
+#+end_src
 * Doom modules config
 This is the entirety of my =init.el= file. This configures all of the
 doom modules
@@ -470,9 +483,10 @@ yaml                ; JSON, but readable
 ** Email
 #+begin_src emacs-lisp :tangle init.el
 :email
-(mu4e
- +gmail
- +org)
+(:if my/is-personal
+    (mu4e
+     +gmail
+     +org))
 ;;notmuch
 ;;(wanderlust +gmail)
 #+end_src
@@ -553,7 +567,7 @@ literate
 ** My personal info
 #+begin_src emacs-lisp
 (setq user-full-name "Kirols Bakheat"
-      user-mail-address "kbakheat@gmail.com")
+      user-mail-address (if my/is-work "kbakheat@ford.com" "kbakheat@gmail.com"))
 #+end_src
 
 ** Undo
@@ -1187,6 +1201,7 @@ I don't use this that often but it is convenient when I occasionally need it.
 ** Github Copilot
 #+begin_src emacs-lisp :tangle packages.el
 (package! copilot
+  :disable my/is-work
   :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
 #+end_src
 
