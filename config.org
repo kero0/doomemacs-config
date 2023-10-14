@@ -894,11 +894,8 @@ Setting fonts and some emojis.
 
 ** LSP
 #+begin_src emacs-lisp
-;; (when (and (modulep! :tools lsp +eglot) (modulep! :checkers syntax))
-;;   (delq! 'eglot flycheck-checkers))
-
-(after! lsp
-  (when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+(when (and (modulep! :tools lsp) (not (modulep! :tools lsp +eglot)))
+  (after! lsp-mode
     (setq
      gc-cons-threshold (* 100 1000 1000) ;; 100mb
      read-process-output-max (* 3 1024 1024) ;; 3mb
@@ -910,7 +907,34 @@ Setting fonts and some emojis.
      lsp-enable-file-watchers t
      lsp-enable-on-type-formatting nil
      lsp-enable-relative-indentation t
-     lsp-enable-semantic-highlighting nil)))
+     lsp-enable-semantic-highlighting nil
+
+     lsp-ui-doc-enable t
+     lsp-ui-doc-header t
+     lsp-ui-doc-include-signature t
+     lsp-ui-doc-position 'top
+     lsp-ui-doc-show-with-mouse t
+     lsp-ui-doc-show-with-cursor t
+     lsp-ui-doc-border (face-foreground 'default)
+
+     lsp-ui-sideline-enable t
+     lsp-ui-sideline-show-hover nil
+     lsp-ui-sideline-show-diagnostics t
+     lsp-ui-sideline-show-code-actions t
+     lsp-ui-sideline-show-symbol t
+
+     lsp-ui-imenu-enable t
+     lsp-ui-imenu-kind-position 'top
+
+     lsp-ui-peek-enable t)
+    (map! :map lsp-ui-mode-map
+          [remap xref-find-definitions] #'lsp-ui-peek-find-definitions
+          [remap xref-find-references]  #'lsp-ui-peek-find-references)
+    (map! :map lsp-mode-map
+          [remap xref-find-definitions] #'lsp-find-definition
+          [remap xref-find-references]  #'lsp-find-references
+          :leader
+          :desc "Open lsp ui imenu" "c TAB" #'lsp-ui-imenu)))
 #+end_src
 
 *** Rust
